@@ -1,0 +1,219 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   Design System: Japanese Tutor's Notebook
+   A calm, refined aesthetic with paper-like warmth
+   ======================================== */
+
+/* Base Styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #F5F1E8;
+  color: #1E3A4F;
+  font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic Pro', sans-serif;
+  font-weight: 400;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle paper texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.03;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Typography Scale */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-display {
+  font-family: 'Shippori Mincho', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+}
+
+h1 {
+  font-size: 2.25rem;
+}
+
+h2 {
+  font-size: 1.75rem;
+}
+
+h3 {
+  font-size: 1.375rem;
+}
+
+h4 {
+  font-size: 1.125rem;
+}
+
+/* Links */
+a {
+  color: #1E3A4F;
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+a:hover {
+  color: #B54834;
+}
+
+/* Focus States */
+:focus-visible {
+  outline: 2px solid #C4964B;
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background-color: #F5EFE0;
+  color: #1E3A4F;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F5F1E8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #EBE5D8;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6B8494;
+}
+
+/* Timeline marker for lesson cards */
+.timeline-marker {
+  position: relative;
+}
+
+.timeline-marker::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #EBE5D8;
+  border: 2px solid #FAF8F3;
+}
+
+/* Staggered animation delays */
+.stagger-1 {
+  animation-delay: 0.05s;
+}
+
+.stagger-2 {
+  animation-delay: 0.1s;
+}
+
+.stagger-3 {
+  animation-delay: 0.15s;
+}
+
+.stagger-4 {
+  animation-delay: 0.2s;
+}
+
+.stagger-5 {
+  animation-delay: 0.25s;
+}
+
+/* Skeleton loading animation */
+.skeleton {
+  background: linear-gradient(90deg,
+      #EBE5D8 25%,
+      #FAF8F3 50%,
+      #EBE5D8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Form elements base styling */
+input,
+textarea,
+select {
+  font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic Pro', sans-serif;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #6B8494;
+}
+
+/* Ensure inputs look native on iOS */
+input,
+textarea,
+select {
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+
+/* Prevent zoom on input focus on iOS */
+@media screen and (max-width: 767px) {
+
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* Custom Tailwind component classes */
+@layer components {
+  .btn-primary {
+    @apply bg-ink text-paper-light hover:bg-ink-light active:scale-[0.98] transition-all;
+  }
+
+  .btn-secondary {
+    @apply bg-paper-light text-ink border border-paper-dark hover:bg-paper hover:border-ink-faint active:scale-[0.98] transition-all;
+  }
+
+  .btn-accent {
+    @apply bg-accent text-paper-light hover:bg-accent-light active:scale-[0.98] transition-all;
+  }
+
+  .card {
+    @apply bg-paper-light border border-paper-dark shadow-card transition-all hover:-translate-y-0.5 hover:shadow-lg;
+    border-radius: 6px 10px 8px 10px;
+  }
+}
