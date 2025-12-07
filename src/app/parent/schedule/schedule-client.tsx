@@ -81,8 +81,25 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
     // Get lessons and requests for a specific date
     const getEventsForDate = (date: Date) => {
         const dateStr = format(date, 'yyyy-MM-dd')
-        const dayLessons = lessons.filter(l => l.date === dateStr)
-        const dayRequests = requests.filter(r => r.date === dateStr)
+        const dayLessons = lessons.filter(l => l.date === dateStr && l.status !== 'cancelled')
+
+        // Filter out requests that have a corresponding confirmed lesson
+        const dayRequests = requests.filter(r => {
+            if (r.date !== dateStr) return false
+
+            // If request is confirmed, check if there's a matching lesson
+            if (r.status === 'confirmed') {
+                const hasMatchingLesson = dayLessons.some(l =>
+                    l.start_time.slice(0, 5) === r.start_time.slice(0, 5) &&
+                    l.end_time.slice(0, 5) === r.end_time.slice(0, 5)
+                )
+                // Hide confirmed requests if lesson exists
+                return !hasMatchingLesson
+            }
+
+            return true // Show pending/rejected requests
+        })
+
         return { lessons: dayLessons, requests: dayRequests }
     }
 
@@ -131,9 +148,9 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
                             <div
                                 key={`request-${i}`}
                                 className={`h-1.5 flex-1 rounded-full ${isSelected ? 'bg-paper-light/50' :
-                                        r.status === 'confirmed' ? 'bg-sage' :
-                                            r.status === 'rejected' ? 'bg-accent' :
-                                                'bg-ochre'
+                                    r.status === 'confirmed' ? 'bg-sage' :
+                                        r.status === 'rejected' ? 'bg-accent' :
+                                            'bg-ochre'
                                     }`}
                             />
                         ))}
@@ -303,10 +320,10 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
                                                 <div
                                                     key={request.id}
                                                     className={`p-3 rounded-lg ${request.status === 'confirmed'
-                                                            ? 'bg-sage-subtle/30 border border-sage-subtle'
-                                                            : request.status === 'rejected'
-                                                                ? 'bg-accent-subtle/30 border border-accent-subtle'
-                                                                : 'bg-ochre-subtle/30 border border-ochre-subtle'
+                                                        ? 'bg-sage-subtle/30 border border-sage-subtle'
+                                                        : request.status === 'rejected'
+                                                            ? 'bg-accent-subtle/30 border border-accent-subtle'
+                                                            : 'bg-ochre-subtle/30 border border-ochre-subtle'
                                                         }`}
                                                 >
                                                     <div className="flex items-center justify-between mb-1">

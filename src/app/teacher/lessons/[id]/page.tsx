@@ -110,6 +110,9 @@ export default async function TeacherLessonDetailPage({
             {/* Editable fields */}
             <LessonEditForm
                 lessonId={id}
+                studentId={lesson.student_id}
+                lessonDate={lesson.date}
+                lessonHours={lesson.hours || 1}
                 initialStatus={lesson.status}
                 initialMemo={lesson.memo || ''}
                 initialHomework={lesson.homework || ''}
