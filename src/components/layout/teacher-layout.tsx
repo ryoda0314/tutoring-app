@@ -9,18 +9,19 @@ import {
     Users,
     Calendar,
     CalendarClock,
-    BookOpen,
     MessageSquare,
     Clock,
     LogOut,
     Menu,
     X,
+    UserPlus,
 } from 'lucide-react'
 import { useState } from 'react'
 
 const teacherNavItems = [
     { href: '/teacher/dashboard', label: 'ダッシュボード', icon: LayoutDashboard },
     { href: '/teacher/students', label: '生徒一覧', icon: Users },
+    { href: '/teacher/invite', label: '保護者招待', icon: UserPlus },
     { href: '/teacher/schedule-requests', label: '日程リクエスト', icon: CalendarClock },
     { href: '/teacher/calendar', label: 'カレンダー', icon: Calendar },
     { href: '/teacher/messages', label: 'メッセージ', icon: MessageSquare },

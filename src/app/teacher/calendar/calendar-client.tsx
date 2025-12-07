@@ -94,7 +94,21 @@ export function TeacherCalendarClient() {
     const getEventsForDate = (date: Date) => {
         const dateStr = format(date, 'yyyy-MM-dd')
         const dayLessons = lessons.filter(l => l.date === dateStr)
-        const dayRequests = requests.filter(r => r.date === dateStr)
+
+        // Filter out requests that overlap with existing lessons (same date and similar time)
+        const dayRequests = requests.filter(r => {
+            if (r.date !== dateStr) return false
+
+            // Check if there's a lesson at the same time slot
+            const hasMatchingLesson = dayLessons.some(l =>
+                l.start_time.slice(0, 5) === r.start_time.slice(0, 5) &&
+                l.end_time.slice(0, 5) === r.end_time.slice(0, 5)
+            )
+
+            // Only show request if no matching lesson exists
+            return !hasMatchingLesson
+        })
+
         return { lessons: dayLessons, requests: dayRequests }
     }
 
@@ -151,8 +165,8 @@ export function TeacherCalendarClient() {
         `}
             >
                 <span className={`text-sm font-medium ${isSelected ? 'text-paper-light' :
-                        date.getDay() === 0 ? 'text-accent' :
-                            date.getDay() === 6 ? 'text-ink-light' : ''
+                    date.getDay() === 0 ? 'text-accent' :
+                        date.getDay() === 6 ? 'text-ink-light' : ''
                     }`}>
                     {format(date, 'd')}
                 </span>

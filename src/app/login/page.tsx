@@ -4,16 +4,20 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
-import { BookOpen, Users } from 'lucide-react'
+import { BookOpen, Users, LogIn, UserPlus } from 'lucide-react'
 
-type LoginMode = 'teacher' | 'parent'
+type UserRole = 'teacher' | 'parent'
+type AuthMode = 'login' | 'signup'
 
 export default function LoginPage() {
-    const [mode, setMode] = useState<LoginMode>('parent')
+    const [authMode, setAuthMode] = useState<AuthMode>('login')
+    const [role, setRole] = useState<UserRole>('parent')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [name, setName] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [success, setSuccess] = useState<string | null>(null)
     const router = useRouter()
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -63,6 +67,69 @@ export default function LoginPage() {
         }
     }
 
+    const handleSignup = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setLoading(true)
+        setError(null)
+        setSuccess(null)
+
+        if (password.length < 6) {
+            setError('パスワードは6文字以上で入力してください')
+            setLoading(false)
+            return
+        }
+
+        if (!name.trim()) {
+            setError('お名前を入力してください')
+            setLoading(false)
+            return
+        }
+
+        const supabase = createClient()
+
+        try {
+            // Sign up the user
+            const { data, error: signUpError } = await supabase.auth.signUp({
+                email,
+                password,
+            })
+
+            if (signUpError) {
+                if (signUpError.message.includes('already registered')) {
+                    setError('このメールアドレスは既に登録されています')
+                } else {
+                    setError(signUpError.message)
+                }
+                return
+            }
+
+            if (data.user) {
+                // Create profile
+                const { error: profileError } = await supabase
+                    .from('profiles')
+                    .insert({
+                        id: data.user.id,
+                        role: role,
+                        name: name.trim(),
+                    })
+
+                if (profileError) {
+                    console.error('Profile creation error:', profileError)
+                    setError('プロフィールの作成に失敗しました')
+                    return
+                }
+
+                setSuccess('アカウントが作成されました！ログインしてください。')
+                setAuthMode('login')
+                setPassword('')
+            }
+        } catch {
+            setError('登録中にエラーが発生しました')
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return (
         <div className="min-h-screen flex items-center justify-center p-4">
             <motion.div
@@ -87,36 +154,84 @@ export default function LoginPage() {
                     </motion.div>
                 </div>
 
-                {/* Login Card */}
+                {/* Card */}
                 <div className="card p-6 sm:p-8">
-                    {/* Mode Tabs */}
+                    {/* Auth Mode Tabs (Login/Signup) */}
+                    <div className="flex mb-6 border-b border-paper-dark">
+                        <button
+                            type="button"
+                            onClick={() => { setAuthMode('login'); setError(null); }}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-all border-b-2 -mb-px ${authMode === 'login'
+                                    ? 'border-ink text-ink'
+                                    : 'border-transparent text-ink-faint hover:text-ink-light'
+                                }`}
+                        >
+                            <LogIn size={18} />
+                            ログイン
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setAuthMode('signup'); setError(null); }}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-all border-b-2 -mb-px ${authMode === 'signup'
+                                    ? 'border-ink text-ink'
+                                    : 'border-transparent text-ink-faint hover:text-ink-light'
+                                }`}
+                        >
+                            <UserPlus size={18} />
+                            新規登録
+                        </button>
+                    </div>
+
+                    {/* Role Tabs */}
                     <div className="flex mb-6 bg-paper rounded-lg p-1">
                         <button
                             type="button"
-                            onClick={() => setMode('parent')}
-                            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-medium transition-all ${mode === 'parent'
+                            onClick={() => setRole('parent')}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-medium transition-all ${role === 'parent'
                                     ? 'bg-paper-light shadow-sm text-ink'
                                     : 'text-ink-faint hover:text-ink-light'
                                 }`}
                         >
                             <Users size={18} />
-                            保護者ログイン
+                            保護者
                         </button>
                         <button
                             type="button"
-                            onClick={() => setMode('teacher')}
-                            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-medium transition-all ${mode === 'teacher'
+                            onClick={() => setRole('teacher')}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-medium transition-all ${role === 'teacher'
                                     ? 'bg-paper-light shadow-sm text-ink'
                                     : 'text-ink-faint hover:text-ink-light'
                                 }`}
                         >
                             <BookOpen size={18} />
-                            先生ログイン
+                            先生
                         </button>
                     </div>
 
-                    {/* Login Form */}
-                    <form onSubmit={handleLogin} className="space-y-5">
+                    {/* Form */}
+                    <form onSubmit={authMode === 'login' ? handleLogin : handleSignup} className="space-y-5">
+                        {/* Name field (signup only) */}
+                        {authMode === 'signup' && (
+                            <div>
+                                <label
+                                    htmlFor="name"
+                                    className="block text-sm font-medium text-ink-light mb-2"
+                                >
+                                    お名前
+                                </label>
+                                <input
+                                    id="name"
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    className="input"
+                                    placeholder={role === 'teacher' ? '山田 太郎' : '鈴木 花子'}
+                                    required
+                                    autoComplete="name"
+                                />
+                            </div>
+                        )}
+
                         <div>
                             <label
                                 htmlFor="email"
@@ -142,6 +257,9 @@ export default function LoginPage() {
                                 className="block text-sm font-medium text-ink-light mb-2"
                             >
                                 パスワード
+                                {authMode === 'signup' && (
+                                    <span className="text-ink-faint text-xs ml-2">（6文字以上）</span>
+                                )}
                             </label>
                             <input
                                 id="password"
@@ -151,10 +269,12 @@ export default function LoginPage() {
                                 className="input"
                                 placeholder="••••••••"
                                 required
-                                autoComplete="current-password"
+                                autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
+                                minLength={authMode === 'signup' ? 6 : undefined}
                             />
                         </div>
 
+                        {/* Error message */}
                         {error && (
                             <motion.div
                                 initial={{ opacity: 0, height: 0 }}
@@ -162,6 +282,17 @@ export default function LoginPage() {
                                 className="p-3 bg-accent-subtle rounded-lg"
                             >
                                 <p className="text-sm text-accent">{error}</p>
+                            </motion.div>
+                        )}
+
+                        {/* Success message */}
+                        {success && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="p-3 bg-sage-subtle rounded-lg"
+                            >
+                                <p className="text-sm text-sage">{success}</p>
                             </motion.div>
                         )}
 
@@ -191,19 +322,39 @@ export default function LoginPage() {
                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                                         />
                                     </svg>
-                                    ログイン中...
+                                    {authMode === 'login' ? 'ログイン中...' : '登録中...'}
                                 </span>
                             ) : (
-                                'ログイン'
+                                authMode === 'login' ? 'ログイン' : 'アカウント作成'
                             )}
                         </button>
                     </form>
 
-                    {/* Help text */}
+                    {/* Switch mode link */}
                     <p className="text-center text-sm text-ink-faint mt-6">
-                        アカウントをお持ちでない方は
-                        <br />
-                        先生にお問い合わせください
+                        {authMode === 'login' ? (
+                            <>
+                                アカウントをお持ちでない方は{' '}
+                                <button
+                                    type="button"
+                                    onClick={() => { setAuthMode('signup'); setError(null); }}
+                                    className="text-ink hover:text-accent underline"
+                                >
+                                    新規登録
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                既にアカウントをお持ちの方は{' '}
+                                <button
+                                    type="button"
+                                    onClick={() => { setAuthMode('login'); setError(null); }}
+                                    className="text-ink hover:text-accent underline"
+                                >
+                                    ログイン
+                                </button>
+                            </>
+                        )}
                     </p>
                 </div>
 

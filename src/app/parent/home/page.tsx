@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import Link from 'next/link'
@@ -11,7 +12,6 @@ import {
     Clock,
     MessageSquare,
     ChevronRight,
-    GraduationCap,
     BookOpen,
 } from 'lucide-react'
 
@@ -19,7 +19,7 @@ export default async function ParentHome() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user) return null
+    if (!user) redirect('/login')
 
     // Get parent's profile with student_id
     const { data: profile } = await supabase
@@ -28,14 +28,9 @@ export default async function ParentHome() {
         .eq('id', user.id)
         .single()
 
+    // If not linked to a student, redirect to setup
     if (!profile?.student_id) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-                <GraduationCap size={48} className="text-ink-faint mb-4" />
-                <h2 className="text-xl font-display text-ink mb-2">生徒情報が登録されていません</h2>
-                <p className="text-ink-light">先生に連絡してアカウントの設定を完了してください</p>
-            </div>
-        )
+        redirect('/parent/setup')
     }
 
     const studentId = profile.student_id

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Card } from '@/components/ui/card'
 import { formatMakeupTime, formatExpirationStatus, daysUntilExpiration } from '@/lib/makeup'
@@ -7,6 +8,7 @@ import {
     AlertTriangle,
     GraduationCap,
     Info,
+    CalendarPlus,
 } from 'lucide-react'
 
 export default async function ParentMakeupPage() {
@@ -73,6 +75,16 @@ export default async function ParentMakeupPage() {
                     </div>
                 </div>
             </Card>
+
+            {/* Request button */}
+            {totalMinutes >= 60 && (
+                <Link href="/parent/makeup/request">
+                    <button className="btn btn-primary w-full py-3 flex items-center justify-center gap-2">
+                        <CalendarPlus size={20} />
+                        振替レッスンを申請する
+                    </button>
+                </Link>
+            )}
 
             {/* Urgent warning */}
             {isUrgent && (
