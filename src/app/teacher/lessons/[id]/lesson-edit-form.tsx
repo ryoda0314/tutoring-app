@@ -76,8 +76,8 @@ export function LessonEditForm({
 
         try {
             // Update lesson
-            const { error: updateError } = await supabase
-                .from('lessons')
+            const { error: updateError } = await (supabase
+                .from('lessons') as any)
                 .update({
                     status,
                     memo: memo || null,
@@ -93,8 +93,8 @@ export function LessonEditForm({
                 const makeupMinutes = Math.round(lessonHours * 60)
                 const expiresAt = addMonths(new Date(lessonDate), 1)
 
-                const { error: makeupError } = await supabase
-                    .from('makeup_credits')
+                const { error: makeupError } = await (supabase
+                    .from('makeup_credits') as any)
                     .insert({
                         student_id: studentId,
                         total_minutes: makeupMinutes,
