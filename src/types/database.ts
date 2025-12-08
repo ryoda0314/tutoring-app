@@ -145,37 +145,68 @@ export interface Database {
                 Row: Profile
                 Insert: Omit<Profile, 'created_at'> & { created_at?: string }
                 Update: Partial<Omit<Profile, 'id'>>
+                Relationships: []
             }
             students: {
                 Row: Student
                 Insert: CreateStudent & { id?: string; created_at?: string }
                 Update: UpdateStudent
+                Relationships: []
             }
             schedule_requests: {
                 Row: ScheduleRequest
                 Insert: CreateScheduleRequest & { id?: string; status?: ScheduleRequestStatus; created_at?: string; updated_at?: string }
                 Update: UpdateScheduleRequest
+                Relationships: []
             }
             lessons: {
                 Row: Lesson
                 Insert: CreateLesson & { id?: string; created_at?: string }
                 Update: UpdateLesson
+                Relationships: []
             }
             messages: {
                 Row: Message
                 Insert: CreateMessage & { id?: string; created_at?: string }
                 Update: Partial<Omit<Message, 'id' | 'student_id' | 'sender_type' | 'created_at'>>
+                Relationships: []
             }
             makeup_credits: {
                 Row: MakeupCredit
                 Insert: CreateMakeupCredit & { id?: string; created_at?: string }
                 Update: Partial<Omit<MakeupCredit, 'id' | 'student_id' | 'created_at'>>
+                Relationships: []
             }
             monthly_payments: {
                 Row: MonthlyPayment
                 Insert: Omit<MonthlyPayment, 'id' | 'created_at' | 'updated_at'> & { id?: string; created_at?: string; updated_at?: string }
                 Update: Partial<Omit<MonthlyPayment, 'id' | 'student_id' | 'created_at'>>
+                Relationships: []
             }
+            teacher_settings: {
+                Row: TeacherSettings
+                Insert: Omit<TeacherSettings, 'id' | 'created_at' | 'updated_at'> & { id?: string; created_at?: string; updated_at?: string }
+                Update: Partial<Omit<TeacherSettings, 'id' | 'teacher_id' | 'created_at'>>
+                Relationships: []
+            }
+            student_locations: {
+                Row: StudentLocation
+                Insert: Omit<StudentLocation, 'id' | 'created_at'> & { id?: string; created_at?: string }
+                Update: Partial<Omit<StudentLocation, 'id' | 'student_id' | 'created_at'>>
+                Relationships: []
+            }
+        }
+        Views: {
+            [_ in never]: never
+        }
+        Functions: {
+            [_ in never]: never
+        }
+        Enums: {
+            [_ in never]: never
+        }
+        CompositeTypes: {
+            [_ in never]: never
         }
     }
 }
