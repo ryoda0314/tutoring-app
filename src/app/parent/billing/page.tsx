@@ -45,6 +45,9 @@ export default async function ParentBillingPage() {
     const yearMonth = format(nextMonth, 'yyyy-MM')
     const { start, end } = getBillingMonthRange(nextMonth)
 
+    const currentMonth = startOfMonth(today)
+    const { start: prevStart, end: prevEnd } = getBillingMonthRange(currentMonth)
+
     // Fetch lessons for next month
     const { data: lessonsData } = await supabase
         .from('lessons')
@@ -54,8 +57,17 @@ export default async function ParentBillingPage() {
         .lte('date', end)
         .order('date', { ascending: true })
 
+    // Fetch lessons for previous month (current calendar month) for adjustments
+    const { data: prevLessonsData } = await supabase
+        .from('lessons')
+        .select('*')
+        .eq('student_id', profile.student_id)
+        .gte('date', prevStart)
+        .lte('date', prevEnd)
+
     const lessons = (lessonsData || []) as Lesson[]
-    const billingInfo = calculateBillingInfo(lessons, nextMonth, today)
+    const prevLessons = (prevLessonsData || []) as Lesson[]
+    const billingInfo = calculateBillingInfo(lessons, nextMonth, today, prevLessons)
 
     // Get all lessons for next month (including makeup) for display
     const allLessons = lessons

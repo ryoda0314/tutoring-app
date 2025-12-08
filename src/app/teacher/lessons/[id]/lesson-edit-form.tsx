@@ -53,6 +53,9 @@ export function LessonEditForm({
     const [saved, setSaved] = useState(false)
     const [showCancelConfirm, setShowCancelConfirm] = useState(false)
     const [hasCancellationRequest, setHasCancellationRequest] = useState(!!cancellationRequestedAt)
+    const [isTeacherReason, setIsTeacherReason] = useState(
+        !!cancellationReason?.includes('[Teacher Reason]')
+    )
 
     const hasChanges =
         status !== initialStatus ||
@@ -75,6 +78,24 @@ export function LessonEditForm({
         const supabase = createClient()
 
         try {
+            // Construct cancellation reason
+            let finalCancellationReason = cancellationReason
+
+            if (status === 'cancelled') {
+                const currentReason = cancellationReason || ''
+                const hasTag = currentReason.includes('[Teacher Reason]')
+
+                if (isTeacherReason) {
+                    if (!hasTag) {
+                        finalCancellationReason = `[Teacher Reason] ${currentReason}`.trim()
+                    }
+                } else {
+                    if (hasTag) {
+                        finalCancellationReason = currentReason.replace('[Teacher Reason]', '').trim()
+                    }
+                }
+            }
+
             // Update lesson
             const { error: updateError } = await (supabase
                 .from('lessons') as any)
@@ -82,6 +103,7 @@ export function LessonEditForm({
                     status,
                     memo: memo || null,
                     homework: homework || null,
+                    cancellation_reason: finalCancellationReason || null,
                 })
                 .eq('id', lessonId)
 
@@ -197,61 +219,97 @@ export function LessonEditForm({
                         }}
                         options={statusOptions}
                     />
+
+                    {status === 'cancelled' && (
+                        <div className="mt-4 p-4 bg-paper-light rounded-lg border border-paper-dark space-y-3">
+                            <p className="text-sm font-medium text-ink">キャンセル理由の種別</p>
+                            <div className="flex gap-4">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="cancelReason"
+                                        checked={!isTeacherReason}
+                                        onChange={() => setIsTeacherReason(false)}
+                                        className="text-accent"
+                                    />
+                                    <span className="text-sm text-ink-light">生徒都合</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="cancelReason"
+                                        checked={isTeacherReason}
+                                        onChange={() => setIsTeacherReason(true)}
+                                        className="text-accent"
+                                    />
+                                    <span className="text-sm text-ink-light">先生都合</span>
+                                </label>
+                            </div>
+                            <p className="text-xs text-ink-faint">
+                                ※先生都合の場合、授業料と交通費が次回の請求から差し引かれます。<br />
+                                ※生徒都合の場合、交通費のみ差し引かれます（振替クレジット発行）。
+                            </p>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 
             {/* Makeup lesson indicator */}
-            {isMakeup && (
-                <div className="p-3 bg-ochre-subtle/30 rounded-lg flex items-center gap-2">
-                    <Ban size={16} className="text-ochre" />
-                    <p className="text-sm text-ochre">
-                        振替レッスン（キャンセルすると振替権利は失効します）
-                    </p>
-                </div>
-            )}
+            {
+                isMakeup && (
+                    <div className="p-3 bg-ochre-subtle/30 rounded-lg flex items-center gap-2">
+                        <Ban size={16} className="text-ochre" />
+                        <p className="text-sm text-ochre">
+                            振替レッスン（キャンセルすると振替権利は失効します）
+                        </p>
+                    </div>
+                )
+            }
 
             {/* Cancel confirmation */}
-            {showCancelConfirm && (
-                <Card padding="md" className="bg-accent-subtle/30 border-accent">
-                    <div className="flex items-start gap-3">
-                        <AlertTriangle size={20} className="text-accent flex-shrink-0 mt-0.5" />
-                        <div className="flex-1">
-                            <p className="font-medium text-accent mb-2">
-                                レッスンをキャンセルしますか？
-                            </p>
-                            {isMakeup ? (
-                                <p className="text-sm text-ink-light mb-3">
-                                    これは振替レッスンです。<strong className="text-accent">キャンセルすると振替権利は失効し、返金もありません。</strong>
+            {
+                showCancelConfirm && (
+                    <Card padding="md" className="bg-accent-subtle/30 border-accent">
+                        <div className="flex items-start gap-3">
+                            <AlertTriangle size={20} className="text-accent flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                                <p className="font-medium text-accent mb-2">
+                                    レッスンをキャンセルしますか？
                                 </p>
-                            ) : (
-                                <p className="text-sm text-ink-light mb-3">
-                                    キャンセルすると、生徒に <strong>{lessonHours}時間分</strong> の振替時間が付与されます。
-                                </p>
-                            )}
-                            <div className="flex gap-2">
-                                <Button
-                                    variant="primary"
-                                    size="sm"
-                                    onClick={handleSave}
-                                    isLoading={loading}
-                                >
-                                    キャンセルを確定
-                                </Button>
-                                <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    onClick={() => {
-                                        setShowCancelConfirm(false)
-                                        setStatus(initialStatus)
-                                    }}
-                                >
-                                    戻る
-                                </Button>
+                                {isMakeup ? (
+                                    <p className="text-sm text-ink-light mb-3">
+                                        これは振替レッスンです。<strong className="text-accent">キャンセルすると振替権利は失効し、返金もありません。</strong>
+                                    </p>
+                                ) : (
+                                    <p className="text-sm text-ink-light mb-3">
+                                        キャンセルすると、生徒に <strong>{lessonHours}時間分</strong> の振替時間が付与されます。
+                                    </p>
+                                )}
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="primary"
+                                        size="sm"
+                                        onClick={handleSave}
+                                        isLoading={loading}
+                                    >
+                                        キャンセルを確定
+                                    </Button>
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        onClick={() => {
+                                            setShowCancelConfirm(false)
+                                            setStatus(initialStatus)
+                                        }}
+                                    >
+                                        戻る
+                                    </Button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </Card>
-            )}
+                    </Card>
+                )
+            }
 
             {/* Memo */}
             <Card padding="md">
@@ -290,35 +348,39 @@ export function LessonEditForm({
             </Card>
 
             {/* Error */}
-            {error && (
-                <div className="p-3 bg-accent-subtle rounded-lg flex items-center gap-2">
-                    <AlertCircle size={16} className="text-accent" />
-                    <p className="text-sm text-accent">{error}</p>
-                </div>
-            )}
+            {
+                error && (
+                    <div className="p-3 bg-accent-subtle rounded-lg flex items-center gap-2">
+                        <AlertCircle size={16} className="text-accent" />
+                        <p className="text-sm text-accent">{error}</p>
+                    </div>
+                )
+            }
 
             {/* Save button */}
-            {!showCancelConfirm && (
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="primary"
-                        onClick={handleSave}
-                        isLoading={loading}
-                        disabled={!hasChanges}
-                        className="flex-1"
-                    >
-                        <Save size={16} />
-                        保存する
-                    </Button>
+            {
+                !showCancelConfirm && (
+                    <div className="flex items-center gap-4">
+                        <Button
+                            variant="primary"
+                            onClick={handleSave}
+                            isLoading={loading}
+                            disabled={!hasChanges}
+                            className="flex-1"
+                        >
+                            <Save size={16} />
+                            保存する
+                        </Button>
 
-                    {saved && (
-                        <span className="flex items-center gap-1.5 text-sm text-sage">
-                            <Check size={16} />
-                            保存しました
-                        </span>
-                    )}
-                </div>
-            )}
-        </div>
+                        {saved && (
+                            <span className="flex items-center gap-1.5 text-sm text-sage">
+                                <Check size={16} />
+                                保存しました
+                            </span>
+                        )}
+                    </div>
+                )
+            }
+        </div >
     )
 }

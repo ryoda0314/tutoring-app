@@ -147,14 +147,37 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
                     </div>
 
                     {/* Breakdown */}
-                    <div className="flex justify-center gap-6 text-sm text-ink-light mb-6">
-                        <div className="flex items-center gap-1">
-                            <Calendar size={14} />
-                            <span>授業料: {formatCurrency(billingInfo.lessonFeeTotal)}</span>
+                    {/* Breakdown */}
+                    <div className="w-full max-w-sm mx-auto mb-6 bg-paper rounded-lg p-4 space-y-2">
+                        {/* Next Month Plan */}
+                        <div className="flex justify-between items-center text-sm text-ink-light">
+                            <div className="flex items-center gap-1">
+                                <Calendar size={14} />
+                                <span>翌月分（授業料＋交通費）</span>
+                            </div>
+                            <span>{formatCurrency(billingInfo.lessonFeeTotal + billingInfo.transportFeeTotal)}</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                            <Train size={14} />
-                            <span>交通費: {formatCurrency(billingInfo.transportFeeTotal)}</span>
+
+                        {/* Adjustments */}
+                        {(billingInfo.adjustments?.addedLessonsFee > 0) && (
+                            <div className="flex justify-between items-center text-sm text-ochre">
+                                <span>前月未払い・追加分</span>
+                                <span>+ {formatCurrency(billingInfo.adjustments.addedLessonsFee)}</span>
+                            </div>
+                        )}
+
+                        {(billingInfo.adjustments?.cancellationRefund > 0) && (
+                            <div className="flex justify-between items-center text-sm text-sage">
+                                <span>前月キャンセル・返金</span>
+                                <span>- {formatCurrency(billingInfo.adjustments.cancellationRefund)}</span>
+                            </div>
+                        )}
+
+                        <div className="border-t border-paper-dark my-2"></div>
+
+                        <div className="flex justify-between items-center font-bold text-ink">
+                            <span>請求総額</span>
+                            <span>{formatCurrency(billingInfo.totalAmount)}</span>
                         </div>
                     </div>
 

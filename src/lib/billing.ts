@@ -17,6 +17,7 @@ export interface Lesson {
     memo?: string
     homework?: string
     created_at: string
+    cancellation_reason?: string | null
 }
 
 export interface BillingInfo {
@@ -28,6 +29,11 @@ export interface BillingInfo {
     isConfirmed: boolean
     confirmationDate: Date
     lessons: Lesson[]
+    adjustments: {
+        addedLessonsFee: number
+        cancellationRefund: number
+        total: number
+    }
 }
 
 /**
@@ -54,7 +60,7 @@ export function getBillingMonthRange(targetMonth: Date): { start: string; end: s
 export function isBillingConfirmed(targetMonth: Date, currentDate: Date = new Date()): boolean {
     // Confirmation happens on the 20th of the month before the target month
     const confirmationMonth = addMonths(targetMonth, -1)
-    const confirmationDay = 7  // テスト用: 7日確定（本番は20日）
+    const confirmationDay = 20
 
     // If we're past the confirmation date, billing is confirmed
     const currentMonthStart = startOfMonth(currentDate)
@@ -93,7 +99,8 @@ export function getConfirmationDate(targetMonth: Date): Date {
 export function calculateBillingInfo(
     lessons: Lesson[],
     targetMonth: Date,
-    currentDate: Date = new Date()
+    currentDate: Date = new Date(),
+    prevMonthLessons: Lesson[] = []
 ): BillingInfo {
     // Filter: planned status AND not makeup
     const billableLessons = lessons.filter(
@@ -110,15 +117,60 @@ export function calculateBillingInfo(
         0
     )
 
+    // Calculate Adjustments from Previous Month
+    let addedLessonsFee = 0
+    let cancellationRefund = 0
+
+    prevMonthLessons.forEach((lesson) => {
+        if (!lesson.created_at) return
+
+        // Calculate the billing confirmation date for this lesson's month
+        // (The date when it SHOULD have been billed)
+        // e.g., Lesson in April -> Billed on March 20th
+        const lessonDate = new Date(lesson.date)
+        const billingDate = getConfirmationDate(lessonDate)
+        const createdAt = new Date(lesson.created_at)
+
+        const isCreatedAfterBilling = createdAt > billingDate
+
+        if (lesson.status === 'done') {
+            // 1. Added Lessons (created after billing date)
+            if (isCreatedAfterBilling) {
+                // Charge full amount
+                addedLessonsFee += (lesson.amount || 0) + (lesson.transport_fee || 0)
+            }
+        } else if (lesson.status === 'cancelled') {
+            // 2. Cancellations (created before billing date, so they were billed)
+            if (!isCreatedAfterBilling) {
+                const isTeacherReason = lesson.cancellation_reason?.includes('[Teacher Reason]')
+
+                if (isTeacherReason) {
+                    // Teacher Reason: Refund Lesson Fee + Transport Fee
+                    cancellationRefund += (lesson.amount || 0) + (lesson.transport_fee || 0)
+                } else {
+                    // Student Reason: Refund Transport Fee Only
+                    cancellationRefund += (lesson.transport_fee || 0)
+                }
+            }
+        }
+    })
+
+    const adjustmentsTotal = addedLessonsFee - cancellationRefund
+
     return {
         targetMonth,
-        totalAmount: lessonFeeTotal + transportFeeTotal,
+        totalAmount: lessonFeeTotal + transportFeeTotal + adjustmentsTotal,
         lessonFeeTotal,
         transportFeeTotal,
         lessonCount: billableLessons.length,
         isConfirmed: isBillingConfirmed(targetMonth, currentDate),
         confirmationDate: getConfirmationDate(targetMonth),
         lessons: billableLessons,
+        adjustments: {
+            addedLessonsFee,
+            cancellationRefund,
+            total: adjustmentsTotal
+        }
     }
 }
 
