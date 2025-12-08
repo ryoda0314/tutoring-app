@@ -167,60 +167,67 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
 
                     {/* Breakdown */}
                     {/* Breakdown */}
-                    <div className="w-full max-w-sm mx-auto mb-6 bg-paper rounded-lg p-4 space-y-2">
-                        {/* Next Month Plan */}
-                        <div className="flex justify-between items-center text-sm text-ink-light">
-                            <div className="flex items-center gap-1">
-                                <Calendar size={14} />
-                                <span>翌月分（授業料＋交通費）</span>
+                    <div className="w-full max-w-sm mx-auto mb-6 bg-paper rounded-lg p-4 space-y-4 shadow-sm border border-paper-dark">
+
+                        {/* 1. Next Month Prepayment */}
+                        <div className="space-y-2">
+                            <p className="text-xs font-bold text-ink mb-1">① 翌月分（先払い）</p>
+                            <div className="pl-2 space-y-1">
+                                <div className="flex justify-between items-center text-xs text-ink-light">
+                                    <span>授業料計</span>
+                                    <span>{formatCurrency(billingInfo.lessonFeeTotal)}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-xs text-ink-light">
+                                    <span>交通費計</span>
+                                    <span>{formatCurrency(billingInfo.transportFeeTotal)}</span>
+                                </div>
                             </div>
-                            <span>{formatCurrency(billingInfo.lessonFeeTotal + billingInfo.transportFeeTotal)}</span>
+                            <div className="flex justify-between items-center text-sm font-medium text-ink pt-1 border-t border-paper-dark dashed">
+                                <span>小計</span>
+                                <span>{formatCurrency(billingInfo.lessonFeeTotal + billingInfo.transportFeeTotal)}</span>
+                            </div>
                         </div>
 
-                        {/* Adjustments */}
-                        {/* Adjustments */}
-                        {billingInfo.adjustments.details && billingInfo.adjustments.details.length > 0 ? (
-                            <div className="space-y-2 mt-2 pt-2 border-t border-paper-dark">
-                                <p className="text-xs text-ink-faint mb-1">前月の調整詳細</p>
-                                {billingInfo.adjustments.details.map((detail, index) => (
-                                    <div key={index} className="flex justify-between items-start text-xs">
-                                        <div className="flex flex-col">
-                                            <span className={`font-medium ${detail.type === 'refund' ? 'text-sage' : 'text-ochre'}`}>
-                                                {detail.reason}
-                                            </span>
-                                            <span className="text-ink-faint">
-                                                {format(new Date(detail.date), 'M/d')}
+                        {/* 2. Prev Month Adjustments */}
+                        <div className="space-y-2">
+                            <p className="text-xs font-bold text-ink mb-1">② 前月の調整（追加・返金）</p>
+
+                            {billingInfo.adjustments.details && billingInfo.adjustments.details.length > 0 ? (
+                                <div className="pl-2 space-y-2">
+                                    {billingInfo.adjustments.details.map((detail, index) => (
+                                        <div key={index} className="flex justify-between items-start text-xs">
+                                            <div className="flex flex-col">
+                                                <span className={`font-medium ${detail.type === 'refund' ? 'text-sage' : 'text-ochre'}`}>
+                                                    {detail.reason}
+                                                </span>
+                                                <span className="text-ink-faint">
+                                                    {format(new Date(detail.date), 'M/d')}
+                                                </span>
+                                            </div>
+                                            <span className={detail.type === 'refund' ? 'text-sage' : 'text-ochre'}>
+                                                {detail.type === 'refund' ? '-' : '+'} {formatCurrency(detail.amount)}
                                             </span>
                                         </div>
-                                        <span className={detail.type === 'refund' ? 'text-sage' : 'text-ochre'}>
-                                            {detail.type === 'refund' ? '-' : '+'} {formatCurrency(detail.amount)}
-                                        </span>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="pl-2 text-xs text-ink-faint">当月の調整はありません</p>
+                            )}
+
+                            <div className="flex justify-between items-center text-sm font-medium text-ink pt-1 border-t border-paper-dark dashed">
+                                <span>小計</span>
+                                <span className={billingInfo.adjustments.total < 0 ? 'text-sage' : billingInfo.adjustments.total > 0 ? 'text-ochre' : 'text-ink'}>
+                                    {billingInfo.adjustments.total > 0 ? '+' : ''}{formatCurrency(billingInfo.adjustments.total)}
+                                </span>
                             </div>
-                        ) : (
-                            <>
-                                {(billingInfo.adjustments?.addedLessonsFee > 0) && (
-                                    <div className="flex justify-between items-center text-sm text-ochre">
-                                        <span>前月未払い・追加分</span>
-                                        <span>+ {formatCurrency(billingInfo.adjustments.addedLessonsFee)}</span>
-                                    </div>
-                                )}
+                        </div>
 
-                                {(billingInfo.adjustments?.cancellationRefund > 0) && (
-                                    <div className="flex justify-between items-center text-sm text-sage">
-                                        <span>前月キャンセル・返金</span>
-                                        <span>- {formatCurrency(billingInfo.adjustments.cancellationRefund)}</span>
-                                    </div>
-                                )}
-                            </>
-                        )}
-
-                        <div className="border-t border-paper-dark my-2"></div>
-
-                        <div className="flex justify-between items-center font-bold text-ink">
-                            <span>請求総額</span>
-                            <span>{formatCurrency(billingInfo.totalAmount)}</span>
+                        {/* Total */}
+                        <div className="pt-3 border-t-2 border-paper-dark">
+                            <div className="flex justify-between items-center font-bold text-ink text-lg">
+                                <span className="text-sm">請求総額 (①+②)</span>
+                                <span>{formatCurrency(billingInfo.totalAmount)}</span>
+                            </div>
                         </div>
                     </div>
 
