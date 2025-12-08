@@ -11,7 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ScheduleStatusBadge, LessonStatusBadge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/loading'
-import type { Lesson, ScheduleRequest } from '@/types/database'
+import type { Lesson, ScheduleRequest, MakeupCredit } from '@/types/database'
 import {
     ChevronLeft,
     ChevronRight,
@@ -128,13 +128,13 @@ export function TeacherCalendarClient() {
         // If makeup request, deduct from makeup credits
         if (isMakeupRequest) {
             // Get available makeup credits (oldest first)
-            const { data: credits } = await supabase
-                .from('makeup_credits')
+            const { data: credits } = await (supabase
+                .from('makeup_credits') as any)
                 .select('*')
                 .eq('student_id', request.student_id)
                 .gt('total_minutes', 0)
                 .gt('expires_at', new Date().toISOString())
-                .order('expires_at', { ascending: true })
+                .order('expires_at', { ascending: true }) as { data: MakeupCredit[] | null }
 
             if (credits && credits.length > 0) {
                 let remainingToDeduct = totalMinutes
@@ -145,8 +145,8 @@ export function TeacherCalendarClient() {
                     const deductAmount = Math.min(credit.total_minutes, remainingToDeduct)
                     const newTotal = credit.total_minutes - deductAmount
 
-                    await supabase
-                        .from('makeup_credits')
+                    await (supabase
+                        .from('makeup_credits') as any)
                         .update({ total_minutes: newTotal })
                         .eq('id', credit.id)
 
