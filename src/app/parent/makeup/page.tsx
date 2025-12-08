@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Card } from '@/components/ui/card'
 import { formatMakeupTime, formatExpirationStatus, daysUntilExpiration } from '@/lib/makeup'
+import type { MakeupCredit } from '@/types/database'
 import {
     Clock,
     AlertTriangle,
@@ -35,19 +36,19 @@ export default async function ParentMakeupPage() {
     }
 
     // Fetch makeup credits
-    const { data: makeupCredits } = await supabase
-        .from('makeup_credits')
+    const { data: makeupCredits } = await (supabase
+        .from('makeup_credits') as any)
         .select('*')
         .eq('student_id', profile.student_id)
         .gt('total_minutes', 0)
         .order('expires_at')
 
     // Separate active and expired soon credits
-    const activeCredits = makeupCredits?.filter(
-        c => new Date(c.expires_at) > new Date()
-    ) || []
+    const activeCredits = (makeupCredits?.filter(
+        (c: MakeupCredit) => new Date(c.expires_at) > new Date()
+    ) || []) as MakeupCredit[]
 
-    const totalMinutes = activeCredits.reduce((sum, c) => sum + c.total_minutes, 0)
+    const totalMinutes = activeCredits.reduce((sum: number, c: MakeupCredit) => sum + c.total_minutes, 0)
     const nearestExpiration = activeCredits[0]?.expires_at
     const isUrgent = nearestExpiration && daysUntilExpiration(nearestExpiration) <= 7
 
