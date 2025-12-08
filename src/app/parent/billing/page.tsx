@@ -62,7 +62,7 @@ export default async function ParentBillingPage() {
 
     // Fetch payment status
     const { data: paymentData } = await supabase
-        .from('monthly_payments' as any)
+        .from('monthly_payments')
         .select('*')
         .eq('student_id', profile.student_id)
         .eq('year_month', yearMonth)

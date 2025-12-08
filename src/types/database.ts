@@ -171,6 +171,11 @@ export interface Database {
                 Insert: CreateMakeupCredit & { id?: string; created_at?: string }
                 Update: Partial<Omit<MakeupCredit, 'id' | 'student_id' | 'created_at'>>
             }
+            monthly_payments: {
+                Row: MonthlyPayment
+                Insert: Omit<MonthlyPayment, 'id' | 'created_at' | 'updated_at'> & { id?: string; created_at?: string; updated_at?: string }
+                Update: Partial<Omit<MonthlyPayment, 'id' | 'student_id' | 'created_at'>>
+            }
         }
     }
 }

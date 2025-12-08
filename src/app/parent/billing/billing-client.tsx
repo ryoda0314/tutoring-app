@@ -49,7 +49,7 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
         setError(null)
 
         try {
-            const supabase = createClient() as any
+            const supabase = createClient()
 
             if (currentPayment) {
                 // Update existing record

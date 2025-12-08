@@ -45,7 +45,7 @@ export function PaymentsClient({ students, payments: initialPayments }: Payments
         setError(null)
 
         try {
-            const supabase = createClient() as any
+            const supabase = createClient()
 
             const { data, error: updateError } = await supabase
                 .from('monthly_payments')

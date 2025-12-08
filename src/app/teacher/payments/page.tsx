@@ -17,7 +17,7 @@ export default async function TeacherPaymentsPage() {
 
     // Get all payments with pending reports (payment_reported_at is set but payment_confirmed_at is null)
     const { data: payments } = await supabase
-        .from('monthly_payments' as any)
+        .from('monthly_payments')
         .select(`
             *,
             student:students(id, name)
