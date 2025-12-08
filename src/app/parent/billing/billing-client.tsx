@@ -178,18 +178,42 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
                         </div>
 
                         {/* Adjustments */}
-                        {(billingInfo.adjustments?.addedLessonsFee > 0) && (
-                            <div className="flex justify-between items-center text-sm text-ochre">
-                                <span>前月未払い・追加分</span>
-                                <span>+ {formatCurrency(billingInfo.adjustments.addedLessonsFee)}</span>
+                        {/* Adjustments */}
+                        {billingInfo.adjustments.details && billingInfo.adjustments.details.length > 0 ? (
+                            <div className="space-y-2 mt-2 pt-2 border-t border-paper-dark">
+                                <p className="text-xs text-ink-faint mb-1">前月の調整詳細</p>
+                                {billingInfo.adjustments.details.map((detail, index) => (
+                                    <div key={index} className="flex justify-between items-start text-xs">
+                                        <div className="flex flex-col">
+                                            <span className={`font-medium ${detail.type === 'refund' ? 'text-sage' : 'text-ochre'}`}>
+                                                {detail.reason}
+                                            </span>
+                                            <span className="text-ink-faint">
+                                                {format(new Date(detail.date), 'M/d')}
+                                            </span>
+                                        </div>
+                                        <span className={detail.type === 'refund' ? 'text-sage' : 'text-ochre'}>
+                                            {detail.type === 'refund' ? '-' : '+'} {formatCurrency(detail.amount)}
+                                        </span>
+                                    </div>
+                                ))}
                             </div>
-                        )}
+                        ) : (
+                            <>
+                                {(billingInfo.adjustments?.addedLessonsFee > 0) && (
+                                    <div className="flex justify-between items-center text-sm text-ochre">
+                                        <span>前月未払い・追加分</span>
+                                        <span>+ {formatCurrency(billingInfo.adjustments.addedLessonsFee)}</span>
+                                    </div>
+                                )}
 
-                        {(billingInfo.adjustments?.cancellationRefund > 0) && (
-                            <div className="flex justify-between items-center text-sm text-sage">
-                                <span>前月キャンセル・返金</span>
-                                <span>- {formatCurrency(billingInfo.adjustments.cancellationRefund)}</span>
-                            </div>
+                                {(billingInfo.adjustments?.cancellationRefund > 0) && (
+                                    <div className="flex justify-between items-center text-sm text-sage">
+                                        <span>前月キャンセル・返金</span>
+                                        <span>- {formatCurrency(billingInfo.adjustments.cancellationRefund)}</span>
+                                    </div>
+                                )}
+                            </>
                         )}
 
                         <div className="border-t border-paper-dark my-2"></div>

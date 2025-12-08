@@ -33,7 +33,15 @@ export interface BillingInfo {
         addedLessonsFee: number
         cancellationRefund: number
         total: number
+        details: AdjustmentDetail[]
     }
+}
+
+export interface AdjustmentDetail {
+    date: string
+    type: 'added' | 'refund'
+    reason: string
+    amount: number
 }
 
 /**
@@ -90,6 +98,8 @@ export function getConfirmationDate(targetMonth: Date): Date {
     return new Date(confirmationMonth.getFullYear(), confirmationMonth.getMonth(), 7)
 }
 
+// ... (existing code)
+
 /**
  * Calculate billing total from lessons
  * Only includes planned lessons that are not makeup lessons
@@ -120,6 +130,7 @@ export function calculateBillingInfo(
     // Calculate Adjustments from Previous Month
     let addedLessonsFee = 0
     let cancellationRefund = 0
+    const adjustmentDetails: AdjustmentDetail[] = []
 
     prevMonthLessons.forEach((lesson) => {
         if (!lesson.created_at) return
@@ -137,19 +148,40 @@ export function calculateBillingInfo(
             // 1. Added Lessons (created after billing date)
             if (isCreatedAfterBilling) {
                 // Charge full amount
-                addedLessonsFee += (lesson.amount || 0) + (lesson.transport_fee || 0)
+                const amount = (lesson.amount || 0) + (lesson.transport_fee || 0)
+                addedLessonsFee += amount
+                adjustmentDetails.push({
+                    date: lesson.date,
+                    type: 'added',
+                    reason: '追加レッスン',
+                    amount: amount
+                })
             }
         } else if (lesson.status === 'cancelled') {
             // 2. Cancellations (created before billing date, so they were billed)
             if (!isCreatedAfterBilling) {
                 const isTeacherReason = lesson.cancellation_reason?.includes('[Teacher Reason]')
+                let refundAmount = 0
+                let reason = ''
 
                 if (isTeacherReason) {
                     // Teacher Reason: Refund Lesson Fee + Transport Fee
-                    cancellationRefund += (lesson.amount || 0) + (lesson.transport_fee || 0)
+                    refundAmount = (lesson.amount || 0) + (lesson.transport_fee || 0)
+                    reason = 'キャンセル返金（先生都合）'
                 } else {
                     // Student Reason: Refund Transport Fee Only
-                    cancellationRefund += (lesson.transport_fee || 0)
+                    refundAmount = (lesson.transport_fee || 0)
+                    reason = 'キャンセル返金（生徒都合・交通費のみ）'
+                }
+
+                if (refundAmount > 0) {
+                    cancellationRefund += refundAmount
+                    adjustmentDetails.push({
+                        date: lesson.date,
+                        type: 'refund',
+                        reason: reason,
+                        amount: refundAmount
+                    })
                 }
             }
         }
@@ -169,7 +201,8 @@ export function calculateBillingInfo(
         adjustments: {
             addedLessonsFee,
             cancellationRefund,
-            total: adjustmentsTotal
+            total: adjustmentsTotal,
+            details: adjustmentDetails.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
         }
     }
 }
