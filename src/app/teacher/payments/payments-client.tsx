@@ -45,13 +45,13 @@ export function PaymentsClient({ students, payments: initialPayments }: Payments
         setError(null)
 
         try {
-            const supabase = createClient()
+            const supabase = createClient() as any
 
             const { data, error: updateError } = await supabase
-                .from('monthly_payments' as any)
+                .from('monthly_payments')
                 .update({
                     payment_confirmed_at: new Date().toISOString(),
-                } as any)
+                })
                 .eq('id', paymentId)
                 .select(`
                     *,
