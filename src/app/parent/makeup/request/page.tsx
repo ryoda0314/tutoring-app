@@ -29,6 +29,22 @@ export default async function ParentMakeupRequestPage() {
         redirect('/parent/setup')
     }
 
+    // Fetch student locations
+    const { data: studentLocations } = await (supabase
+        .from('student_locations') as any)
+        .select('name, transportation_fee')
+        .eq('student_id', profile.student_id)
+        .order('created_at')
+
+    // Prepare locations (default to offline spots if none)
+    const locations = studentLocations && studentLocations.length > 0
+        ? studentLocations
+        : [
+            { name: '日暮里', transportation_fee: 900 },
+            { name: '蓮沼', transportation_fee: 1500 },
+            { name: 'オンライン', transportation_fee: 0 }
+        ]
+
     // Fetch makeup credits
     const { data: makeupCredits } = await (supabase
         .from('makeup_credits') as any)
@@ -75,6 +91,7 @@ export default async function ParentMakeupRequestPage() {
             <MakeupRequestForm
                 studentId={profile.student_id}
                 makeupCredits={activeCredits}
+                locations={locations}
             />
 
             {/* Info */}

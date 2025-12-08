@@ -22,16 +22,16 @@ interface MakeupCredit {
     expires_at: string
 }
 
+interface Location {
+    name: string
+    transportation_fee: number | null
+}
+
 interface MakeupRequestFormProps {
     studentId: string
     makeupCredits: MakeupCredit[]
+    locations: Location[]
 }
-
-const locationOptions = [
-    { value: '日暮里', label: '日暮里' },
-    { value: '蓮沼', label: '蓮沼' },
-    { value: 'オンライン', label: 'オンライン' },
-]
 
 const durationOptions = [
     { value: 60, label: '1時間' },
@@ -39,12 +39,12 @@ const durationOptions = [
     { value: 120, label: '2時間' },
 ]
 
-export function MakeupRequestForm({ studentId, makeupCredits }: MakeupRequestFormProps) {
+export function MakeupRequestForm({ studentId, makeupCredits, locations }: MakeupRequestFormProps) {
     const router = useRouter()
     const [date, setDate] = useState('')
     const [startTime, setStartTime] = useState('')
     const [duration, setDuration] = useState(60)
-    const [location, setLocation] = useState('日暮里')
+    const [location, setLocation] = useState(locations[0]?.name || '')
     const [memo, setMemo] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -225,8 +225,11 @@ export function MakeupRequestForm({ studentId, makeupCredits }: MakeupRequestFor
                                     onChange={(e) => setLocation(e.target.value)}
                                     className="input"
                                 >
-                                    {locationOptions.map(opt => (
-                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    {locations.map(loc => (
+                                        <option key={loc.name} value={loc.name}>
+                                            {loc.name}
+                                            {loc.transportation_fee !== null && ` (+¥${loc.transportation_fee})`}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
