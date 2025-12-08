@@ -19,7 +19,7 @@ export async function GET(request: Request) {
                     .from('profiles')
                     .select('role')
                     .eq('id', user.id)
-                    .single()
+                    .single() as { data: { role: string } | null }
 
                 if (profile?.role === 'teacher') {
                     return NextResponse.redirect(`${origin}/teacher/dashboard`)
