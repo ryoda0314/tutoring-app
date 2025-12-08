@@ -51,7 +51,7 @@ export default async function ParentHome() {
         .from('students')
         .select('*')
         .eq('id', studentId)
-        .single()
+        .single() as { data: any | null }
 
     // Fetch next lesson
     const { data: nextLessons } = await supabase
@@ -62,7 +62,7 @@ export default async function ParentHome() {
         .gte('date', format(today, 'yyyy-MM-dd'))
         .order('date', { ascending: true })
         .order('start_time', { ascending: true })
-        .limit(1)
+        .limit(1) as { data: any[] | null }
 
     const nextLesson = nextLessons?.[0]
 
@@ -73,7 +73,7 @@ export default async function ParentHome() {
         .eq('student_id', studentId)
         .in('status', ['requested', 'reproposed'])
         .order('created_at', { ascending: false })
-        .limit(3)
+        .limit(3) as { data: any[] | null }
 
     // Fetch recent lessons (last 3)
     const { data: recentLessons } = await supabase
@@ -82,7 +82,7 @@ export default async function ParentHome() {
         .eq('student_id', studentId)
         .eq('status', 'done')
         .order('date', { ascending: false })
-        .limit(3)
+        .limit(3) as { data: any[] | null }
 
     // Fetch makeup credits
     const { data: makeupCredits } = await supabase
