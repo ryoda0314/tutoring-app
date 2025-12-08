@@ -3,13 +3,32 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
-import { Copy, Check, UserPlus, RefreshCw } from 'lucide-react'
+import { Copy, Check, UserPlus, RefreshCw, MessageSquare } from 'lucide-react'
 
 export function TeacherInviteGenerator() {
     const [inviteCode, setInviteCode] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
     const [copied, setCopied] = useState(false)
+    const [copiedMessage, setCopiedMessage] = useState(false)
     const [error, setError] = useState<string | null>(null)
+
+    const getMessageTemplate = (code: string) => {
+        return `【Tutorin招待】
+
+こんにちは！レッスン管理アプリ「Tutorin」への招待です。
+
+▼ 登録手順
+1. 下記のURLからアカウントを作成してください
+${typeof window !== 'undefined' ? window.location.origin : ''}/login
+
+2. 新規登録後、以下の招待コードを入力してください
+
+招待コード: ${code}
+
+※このコードは7日間有効です
+
+ご不明な点がありましたらお気軽にご連絡ください。`
+    }
 
     const generateCode = () => {
         const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -72,6 +91,26 @@ export function TeacherInviteGenerator() {
             document.body.removeChild(textArea)
             setCopied(true)
             setTimeout(() => setCopied(false), 2000)
+        }
+    }
+
+    const handleCopyMessage = async () => {
+        if (!inviteCode) return
+        const message = getMessageTemplate(inviteCode)
+
+        try {
+            await navigator.clipboard.writeText(message)
+            setCopiedMessage(true)
+            setTimeout(() => setCopiedMessage(false), 2000)
+        } catch {
+            const textArea = document.createElement('textarea')
+            textArea.value = message
+            document.body.appendChild(textArea)
+            textArea.select()
+            document.execCommand('copy')
+            document.body.removeChild(textArea)
+            setCopiedMessage(true)
+            setTimeout(() => setCopiedMessage(false), 2000)
         }
     }
 
@@ -151,6 +190,24 @@ export function TeacherInviteGenerator() {
                         className="btn btn-secondary w-full mt-4 py-2"
                     >
                         新しいコードを生成
+                    </button>
+
+                    {/* Copy message template button */}
+                    <button
+                        onClick={handleCopyMessage}
+                        className="btn btn-primary w-full mt-3 py-3 flex items-center justify-center gap-2"
+                    >
+                        {copiedMessage ? (
+                            <>
+                                <Check size={18} />
+                                コピーしました！
+                            </>
+                        ) : (
+                            <>
+                                <MessageSquare size={18} />
+                                保護者への案内メッセージをコピー
+                            </>
+                        )}
                     </button>
                 </motion.div>
             )}
