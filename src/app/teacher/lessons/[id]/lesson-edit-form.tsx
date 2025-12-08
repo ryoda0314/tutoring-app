@@ -57,10 +57,13 @@ export function LessonEditForm({
         !!cancellationReason?.includes('[Teacher Reason]')
     )
 
+    const initialIsTeacherReason = !!cancellationReason?.includes('[Teacher Reason]')
+
     const hasChanges =
         status !== initialStatus ||
         memo !== initialMemo ||
-        homework !== initialHomework
+        homework !== initialHomework ||
+        isTeacherReason !== initialIsTeacherReason
 
     const isChangingToCancel = status === 'cancelled' && initialStatus !== 'cancelled'
 
@@ -224,26 +227,22 @@ export function LessonEditForm({
                         <div className="mt-4 p-4 bg-paper-light rounded-lg border border-paper-dark space-y-3">
                             <p className="text-sm font-medium text-ink">キャンセル理由の種別</p>
                             <div className="flex gap-4">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="cancelReason"
-                                        checked={!isTeacherReason}
-                                        onChange={() => setIsTeacherReason(false)}
-                                        className="text-accent"
-                                    />
-                                    <span className="text-sm text-ink-light">生徒都合</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="cancelReason"
-                                        checked={isTeacherReason}
-                                        onChange={() => setIsTeacherReason(true)}
-                                        className="text-accent"
-                                    />
-                                    <span className="text-sm text-ink-light">先生都合</span>
-                                </label>
+                                <Button
+                                    type="button"
+                                    variant={!isTeacherReason ? 'primary' : 'secondary'}
+                                    size="sm"
+                                    onClick={() => setIsTeacherReason(false)}
+                                >
+                                    生徒都合
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant={isTeacherReason ? 'primary' : 'secondary'}
+                                    size="sm"
+                                    onClick={() => setIsTeacherReason(true)}
+                                >
+                                    先生都合
+                                </Button>
                             </div>
                             <p className="text-xs text-ink-faint">
                                 ※先生都合の場合、授業料と交通費が次回の請求から差し引かれます。<br />
