@@ -14,7 +14,7 @@ export default async function HomePage() {
     .from('profiles')
     .select('role')
     .eq('id', user.id)
-    .single()
+    .single() as { data: { role: string } | null }
 
   if (profile?.role === 'teacher') {
     redirect('/teacher/dashboard')
