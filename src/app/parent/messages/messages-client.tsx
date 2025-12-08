@@ -87,7 +87,7 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
         setSending(true)
         const supabase = createClient()
 
-        await supabase.from('messages').insert({
+        await (supabase.from('messages') as any).insert({
             student_id: studentId,
             sender_type: 'parent',
             body: newMessage.trim(),
