@@ -52,12 +52,12 @@ export function LessonsClient({ upcomingLessons: initialUpcoming, pastLessons }:
         try {
             const supabase = createClient()
 
-            const { error: updateError } = await supabase
-                .from('lessons')
+            const { error: updateError } = await (supabase
+                .from('lessons') as any)
                 .update({
                     cancellation_requested_at: new Date().toISOString(),
                     cancellation_reason: cancelReason || null,
-                } as any)
+                })
                 .eq('id', selectedLesson.id)
 
             if (updateError) throw updateError

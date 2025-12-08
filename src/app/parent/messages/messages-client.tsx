@@ -154,15 +154,14 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
                             >
                                 <div
                                     className={`max-w-[85%] p-3 rounded-lg ${message.sender_type === 'parent'
-                                            ? 'bg-ink text-paper-light rounded-br-sm'
-                                            : 'bg-paper-dark text-ink rounded-bl-sm'
+                                        ? 'bg-ink text-paper-light rounded-br-sm'
+                                        : 'bg-paper-dark text-ink rounded-bl-sm'
                                         }`}
                                 >
                                     <div className="flex items-center gap-2 mb-1">
                                         <MessageTypeBadge type={message.message_type} />
                                         {message.sender_type === 'teacher' && (
-                                            <span className={`text-xs ${message.sender_type === 'parent' ? 'text-paper-light/70' : 'text-ink-faint'
-                                                }`}>
+                                            <span className="text-xs text-ink-faint">
                                                 先生
                                             </span>
                                         )}
