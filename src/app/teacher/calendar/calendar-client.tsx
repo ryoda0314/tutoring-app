@@ -59,7 +59,7 @@ export function TeacherCalendarClient() {
                 .lte('date', format(monthEnd, 'yyyy-MM-dd'))
                 .neq('status', 'cancelled')
                 .order('date')
-                .order('start_time')
+                .order('start_time') as { data: any[] | null }
 
             // Fetch pending schedule requests
             const { data: requestsData } = await supabase
@@ -72,7 +72,7 @@ export function TeacherCalendarClient() {
                 .lte('date', format(monthEnd, 'yyyy-MM-dd'))
                 .in('status', ['requested', 'reproposed'])
                 .order('date')
-                .order('start_time')
+                .order('start_time') as { data: any[] | null }
 
             setLessons(lessonsData as LessonWithStudent[] || [])
             setRequests(requestsData as ScheduleRequestWithStudent[] || [])

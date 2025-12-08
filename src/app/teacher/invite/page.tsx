@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { UserPlus, Check, Clock, Users } from 'lucide-react'
+import type { StudentInvite } from '@/types/database'
 
 export default async function TeacherInvitePage() {
     const supabase = await createClient()
@@ -17,7 +18,7 @@ export default async function TeacherInvitePage() {
         .select('*')
         .eq('created_by', user.id)
         .order('created_at', { ascending: false })
-        .limit(10)
+        .limit(10) as { data: StudentInvite[] | null }
 
     const activeInvites = recentInvites?.filter(
         i => !i.used_by && new Date(i.expires_at) > new Date()

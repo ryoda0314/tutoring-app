@@ -49,7 +49,7 @@ export function TeacherMessagesClient() {
             const { data } = await supabase
                 .from('students')
                 .select('*')
-                .order('name')
+                .order('name') as { data: any[] | null }
             setStudents(data || [])
             setLoading(false)
         }
@@ -69,7 +69,7 @@ export function TeacherMessagesClient() {
                 .from('messages')
                 .select('*')
                 .eq('student_id', selectedStudentId)
-                .order('created_at', { ascending: false })
+                .order('created_at', { ascending: false }) as { data: any[] | null }
             setMessages(data || [])
         }
         fetchMessages()
@@ -237,8 +237,8 @@ export function TeacherMessagesClient() {
                                                         initial={{ opacity: 0 }}
                                                         animate={{ opacity: 1 }}
                                                         className={`border-b border-paper-dark/50 hover:bg-paper-dark/30 ${message.sender_type === 'teacher'
-                                                                ? 'bg-sage-subtle/20'
-                                                                : ''
+                                                            ? 'bg-sage-subtle/20'
+                                                            : ''
                                                             } ${message.is_pinned ? 'bg-ochre-subtle/30' : ''}`}
                                                     >
                                                         <td className="p-2 text-xs text-ink-faint whitespace-nowrap">
@@ -246,8 +246,8 @@ export function TeacherMessagesClient() {
                                                         </td>
                                                         <td className="p-2">
                                                             <span className={`text-xs px-1.5 py-0.5 rounded ${message.sender_type === 'teacher'
-                                                                    ? 'bg-sage text-paper-light'
-                                                                    : 'bg-ink-faint/20 text-ink'
+                                                                ? 'bg-sage text-paper-light'
+                                                                : 'bg-ink-faint/20 text-ink'
                                                                 }`}>
                                                                 {message.sender_type === 'teacher' ? '先生' : '保護者'}
                                                             </span>

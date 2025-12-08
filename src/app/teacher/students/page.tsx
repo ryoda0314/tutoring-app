@@ -31,7 +31,7 @@ export default async function TeacherStudentsPage() {
         .from('students')
         .select('*')
         .eq('teacher_id', user.id)
-        .order('name')
+        .order('name') as { data: any[] | null }
 
     // For each student, get next planned lesson and makeup totals
     const studentsWithDetails: StudentWithDetails[] = await Promise.all(
@@ -44,7 +44,7 @@ export default async function TeacherStudentsPage() {
                 .eq('status', 'planned')
                 .gte('date', format(new Date(), 'yyyy-MM-dd'))
                 .order('date')
-                .limit(1)
+                .limit(1) as { data: any[] | null }
 
             // Get active makeup credits total
             const { data: makeupData } = await supabase
@@ -52,7 +52,7 @@ export default async function TeacherStudentsPage() {
                 .select('total_minutes')
                 .eq('student_id', student.id)
                 .gt('total_minutes', 0)
-                .gt('expires_at', new Date().toISOString())
+                .gt('expires_at', new Date().toISOString()) as { data: any[] | null }
 
             const makeupTotal = makeupData?.reduce((sum, m) => sum + (m.total_minutes || 0), 0) || 0
 

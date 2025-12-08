@@ -32,7 +32,7 @@ export default async function TeacherStudentDetailPage({
         .from('students')
         .select('*')
         .eq('id', id)
-        .single()
+        .single() as { data: any | null }
 
     if (!student) {
         notFound()
@@ -44,7 +44,7 @@ export default async function TeacherStudentDetailPage({
         .select('*')
         .eq('student_id', id)
         .order('date', { ascending: false })
-        .limit(10)
+        .limit(10) as { data: any[] | null }
 
     // Fetch makeup credits
     const { data: makeupCredits } = await supabase
@@ -53,7 +53,7 @@ export default async function TeacherStudentDetailPage({
         .eq('student_id', id)
         .gt('total_minutes', 0)
         .gt('expires_at', new Date().toISOString())
-        .order('expires_at')
+        .order('expires_at') as { data: any[] | null }
 
     const totalMakeupMinutes = makeupCredits?.reduce(
         (sum, m) => sum + (m.total_minutes || 0),
@@ -65,7 +65,7 @@ export default async function TeacherStudentDetailPage({
         .from('schedule_requests')
         .select('*')
         .eq('student_id', id)
-        .in('status', ['requested', 'reproposed'])
+        .in('status', ['requested', 'reproposed']) as { data: any[] | null }
 
     return (
         <div className="space-y-6">

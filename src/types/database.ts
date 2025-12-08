@@ -258,3 +258,13 @@ export interface LessonWithStudent extends Lesson {
 export interface MessageWithStudent extends Message {
     student: Student
 }
+
+export interface StudentInvite {
+    id: string
+    invite_code: string
+    created_by: string
+    used_by: string | null
+    expires_at: string
+    used_at: string | null
+    created_at: string
+}

@@ -10,6 +10,12 @@ import {
     AlertTriangle,
     ChevronRight,
 } from 'lucide-react'
+import type { MakeupCredit } from '@/types/database'
+
+interface MakeupCreditWithRelations extends MakeupCredit {
+    student: { id: string; name: string }
+    origin_lesson: { date: string } | null
+}
 
 export default async function TeacherMakeupPage() {
     const supabase = await createClient()
@@ -22,7 +28,7 @@ export default async function TeacherMakeupPage() {
         .from('students')
         .select('id, name, grade')
         .eq('teacher_id', user.id)
-        .order('name')
+        .order('name') as { data: { id: string; name: string; grade: string }[] | null }
 
     // Fetch all active makeup credits
     const { data: allCredits } = await supabase
@@ -33,7 +39,7 @@ export default async function TeacherMakeupPage() {
       origin_lesson:lessons(date)
     `)
         .gt('total_minutes', 0)
-        .order('expires_at')
+        .order('expires_at') as { data: MakeupCreditWithRelations[] | null }
 
     // Group credits by student
     const creditsByStudent = (allCredits || []).reduce((acc, credit) => {
@@ -52,7 +58,8 @@ export default async function TeacherMakeupPage() {
             acc[studentId].nearestExpiration = credit.expires_at
         }
         return acc
-    }, {} as Record<string, { student: { id: string; name: string }; credits: typeof allCredits; totalMinutes: number; nearestExpiration: string | null }>)
+    }, {} as Record<string, { student: { id: string; name: string }; credits: MakeupCreditWithRelations[]; totalMinutes: number; nearestExpiration: string | null }>)
+
 
     const studentsWithCredits = Object.values(creditsByStudent)
 

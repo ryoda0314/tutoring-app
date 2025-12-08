@@ -65,7 +65,7 @@ export function ScheduleRequestsClient() {
             query = query.eq('status', filter)
         }
 
-        const { data, error } = await query
+        const { data, error } = await query as { data: any[] | null; error: any }
 
         if (error) {
             console.error('Fetch error:', error)

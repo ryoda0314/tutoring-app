@@ -40,7 +40,7 @@ export default async function TeacherDashboard() {
         .in('status', ['planned', 'done'])
         .order('date', { ascending: true })
         .order('start_time', { ascending: true })
-        .limit(5)
+        .limit(5) as { data: any[] | null }
 
     // Fetch pending schedule requests
     const { data: pendingRequests, error: reqError } = await supabase
@@ -51,7 +51,7 @@ export default async function TeacherDashboard() {
     `)
         .eq('status', 'requested')
         .order('created_at', { ascending: false })
-        .limit(5)
+        .limit(5) as { data: any[] | null; error: any }
 
     // Get count of all pending requests
     const { count: pendingCount } = await supabase
@@ -66,7 +66,7 @@ export default async function TeacherDashboard() {
         .select('amount, transport_fee, is_makeup, status')
         .gte('date', format(monthStart, 'yyyy-MM-dd'))
         .lte('date', format(monthEnd, 'yyyy-MM-dd'))
-        .in('status', ['planned', 'cancelled'])  // Confirmed lessons (done not counted to avoid duplication)
+        .in('status', ['planned', 'cancelled']) as { data: any[] | null }  // Confirmed lessons (done not counted to avoid duplication)
 
     // Only count non-makeup lessons for revenue
     // Cancelled lessons: count amount but NOT transport_fee (didn't travel)
@@ -93,7 +93,7 @@ export default async function TeacherDashboard() {
       student:students(name)
     `)
         .gt('total_minutes', 0)
-        .gt('expires_at', new Date().toISOString())
+        .gt('expires_at', new Date().toISOString()) as { data: any[] | null }
 
     const totalMakeupMinutes = makeupCredits?.reduce(
         (sum, credit) => sum + (credit.total_minutes || 0),
@@ -111,7 +111,7 @@ export default async function TeacherDashboard() {
         .is('cancellation_processed_at', null)
         .eq('status', 'planned')
         .order('cancellation_requested_at', { ascending: false })
-        .limit(5)
+        .limit(5) as { data: any[] | null }
 
     const cancellationCount = cancellationRequests?.length ?? 0
 
