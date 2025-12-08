@@ -68,11 +68,11 @@ export default function ParentSettingsPage() {
             }
 
             // Fetch student data
-            const { data: studentData } = await supabase
-                .from('students')
+            const { data: studentData } = await (supabase
+                .from('students') as any)
                 .select('*')
                 .eq('id', profile.student_id)
-                .single()
+                .single() as { data: Student | null }
 
             if (studentData) {
                 setStudent(studentData)
