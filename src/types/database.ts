@@ -137,6 +137,36 @@ export type CreateMessage = Omit<Message, 'id' | 'created_at'>
 
 export type CreateMakeupCredit = Omit<MakeupCredit, 'id' | 'created_at'>
 
+export type Json =
+    | string
+    | number
+    | boolean
+    | null
+    | { [key: string]: Json | undefined }
+    | Json[]
+
+export interface MonthlyPaymentInsert {
+    student_id: string
+    year_month: string
+    total_amount: number
+    payment_reported_at?: string | null
+    payment_confirmed_at?: string | null
+    created_at?: string
+    updated_at?: string
+    id?: string
+}
+
+export interface MonthlyPaymentUpdate {
+    student_id?: string
+    year_month?: string
+    total_amount?: number
+    payment_reported_at?: string | null
+    payment_confirmed_at?: string | null
+    created_at?: string
+    updated_at?: string
+    id?: string
+}
+
 // Database type for Supabase client typing
 export interface Database {
     public: {
@@ -179,8 +209,8 @@ export interface Database {
             }
             monthly_payments: {
                 Row: MonthlyPayment
-                Insert: Omit<MonthlyPayment, 'id' | 'created_at' | 'updated_at'> & { id?: string; created_at?: string; updated_at?: string }
-                Update: Partial<Omit<MonthlyPayment, 'id' | 'student_id' | 'created_at'>>
+                Insert: MonthlyPaymentInsert
+                Update: MonthlyPaymentUpdate
                 Relationships: []
             }
             teacher_settings: {
