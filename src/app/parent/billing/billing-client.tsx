@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { format } from 'date-fns'
+import { format, addMonths } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/pricing'
@@ -18,6 +19,8 @@ import {
     Train,
     CreditCard,
     Loader2,
+    ChevronLeft,
+    ChevronRight,
 } from 'lucide-react'
 
 interface BillingClientProps {
@@ -43,6 +46,9 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
     const [error, setError] = useState<string | null>(null)
 
     const status = getPaymentStatus(currentPayment)
+
+    const prevMonth = addMonths(billingInfo.targetMonth, -1)
+    const nextMonth = addMonths(billingInfo.targetMonth, 1)
 
     const handleReportPayment = async () => {
         setLoading(true)
@@ -108,16 +114,29 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
                 return null
         }
     }
-
     return (
         <div className="space-y-6">
             {/* Main Billing Card */}
             <Card padding="lg" className="animate-fade-slide-up">
                 <div className="text-center">
-                    {/* Month Label */}
-                    <p className="text-sm text-ink-light mb-2">
-                        {format(billingInfo.targetMonth, 'yyyy年M月', { locale: ja })}分 お支払い
-                    </p>
+                    {/* Month Navigation */}
+                    <div className="flex items-center justify-center gap-4 mb-2">
+                        <Link
+                            href={`/parent/billing?date=${format(prevMonth, 'yyyy-MM')}`}
+                            className="p-1 rounded-full hover:bg-paper-dark text-ink-light transition-colors"
+                        >
+                            <ChevronLeft size={20} />
+                        </Link>
+                        <p className="text-sm font-medium text-ink-light">
+                            {format(billingInfo.targetMonth, 'yyyy年M月', { locale: ja })}分 お支払い
+                        </p>
+                        <Link
+                            href={`/parent/billing?date=${format(nextMonth, 'yyyy-MM')}`}
+                            className="p-1 rounded-full hover:bg-paper-dark text-ink-light transition-colors"
+                        >
+                            <ChevronRight size={20} />
+                        </Link>
+                    </div>
 
                     {/* Status Badge */}
                     <div className="flex justify-center mb-4">
@@ -256,9 +275,16 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
                                             {format(new Date(lesson.date), 'M月d日（E）', { locale: ja })}
                                         </span>
                                         {lesson.is_makeup ? (
-                                            <span className="text-xs px-2 py-0.5 rounded-full bg-sage text-paper font-medium">
-                                                振替
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs px-2 py-0.5 rounded-full bg-sage text-paper font-medium">
+                                                    振替
+                                                </span>
+                                                {lesson.transport_fee > 0 && (
+                                                    <span className="text-sm text-ink">
+                                                        {formatCurrency(lesson.transport_fee)}
+                                                    </span>
+                                                )}
+                                            </div>
                                         ) : (
                                             <span className="text-sm text-ink">
                                                 {formatCurrency((lesson.amount || 0) + (lesson.transport_fee || 0))}
@@ -271,7 +297,7 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
                                             {lesson.start_time.slice(0, 5)} - {lesson.end_time.slice(0, 5)}
                                         </span>
                                         <span>{lesson.hours}時間</span>
-                                        {!lesson.is_makeup && lesson.transport_fee > 0 && (
+                                        {lesson.transport_fee > 0 && (
                                             <span className="flex items-center gap-1 text-ink-faint">
                                                 <Train size={12} />
                                                 {formatCurrency(lesson.transport_fee)}

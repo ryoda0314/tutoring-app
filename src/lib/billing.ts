@@ -102,9 +102,9 @@ export function calculateBillingInfo(
     currentDate: Date = new Date(),
     prevMonthLessons: Lesson[] = []
 ): BillingInfo {
-    // Filter: planned status AND not makeup
+    // Filter: planned status (including makeup lessons for transport fee)
     const billableLessons = lessons.filter(
-        (lesson) => lesson.status === 'planned' && !lesson.is_makeup
+        (lesson) => lesson.status === 'planned'
     )
 
     const lessonFeeTotal = billableLessons.reduce(

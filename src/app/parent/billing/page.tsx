@@ -17,7 +17,11 @@ import {
     GraduationCap,
 } from 'lucide-react'
 
-export default async function ParentBillingPage() {
+interface ParentBillingPageProps {
+    searchParams: { date?: string }
+}
+
+export default async function ParentBillingPage({ searchParams }: ParentBillingPageProps) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -41,14 +45,26 @@ export default async function ParentBillingPage() {
     }
 
     const today = new Date()
-    const nextMonth = addMonths(startOfMonth(today), 1)
-    const yearMonth = format(nextMonth, 'yyyy-MM')
-    const { start, end } = getBillingMonthRange(nextMonth)
 
-    const currentMonth = startOfMonth(today)
-    const { start: prevStart, end: prevEnd } = getBillingMonthRange(currentMonth)
+    // Determine target month (billing month)
+    // Default is next month (prepayment)
+    let targetMonth = addMonths(startOfMonth(today), 1)
 
-    // Fetch lessons for next month
+    if (searchParams.date) {
+        const [year, month] = searchParams.date.split('-').map(Number)
+        if (!isNaN(year) && !isNaN(month)) {
+            targetMonth = new Date(year, month - 1, 1)
+        }
+    }
+
+    const yearMonth = format(targetMonth, 'yyyy-MM')
+    const { start, end } = getBillingMonthRange(targetMonth)
+
+    // Previous month (for adjustments) is the month before target month
+    const prevMonth = addMonths(targetMonth, -1)
+    const { start: prevStart, end: prevEnd } = getBillingMonthRange(prevMonth)
+
+    // Fetch lessons for target month
     const { data: lessonsData } = await supabase
         .from('lessons')
         .select('*')
@@ -57,7 +73,7 @@ export default async function ParentBillingPage() {
         .lte('date', end)
         .order('date', { ascending: true })
 
-    // Fetch lessons for previous month (current calendar month) for adjustments
+    // Fetch lessons for previous month for adjustments
     const { data: prevLessonsData } = await supabase
         .from('lessons')
         .select('*')
@@ -67,7 +83,10 @@ export default async function ParentBillingPage() {
 
     const lessons = (lessonsData || []) as Lesson[]
     const prevLessons = (prevLessonsData || []) as Lesson[]
-    const billingInfo = calculateBillingInfo(lessons, nextMonth, today, prevLessons)
+
+    // Calculate billing info
+    // For manual date navigation, we still use 'today' as the reference for confirmation status
+    const billingInfo = calculateBillingInfo(lessons, targetMonth, today, prevLessons)
 
     // Get all lessons for next month (including makeup) for display
     const allLessons = lessons
