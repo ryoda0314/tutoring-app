@@ -19,7 +19,7 @@ export function TeacherInviteGenerator() {
 
 ▼ 登録手順
 1. 下記のURLからアカウントを作成してください
-${typeof window !== 'undefined' ? window.location.origin : ''}/login
+https://tutorin-blush.vercel.app/login
 
 2. 新規登録後、以下の招待コードを入力してください
 
