@@ -203,6 +203,7 @@ export function TeacherCalendarClient() {
                 amount: isMakeupRequest ? 0 : Math.round(hours * hourlyRate),
                 transport_fee: transportFee,
                 status: 'planned',
+                is_makeup: isMakeupRequest || false,
             })
 
         // Update request

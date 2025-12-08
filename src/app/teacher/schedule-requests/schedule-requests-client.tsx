@@ -173,6 +173,7 @@ export function ScheduleRequestsClient() {
                     amount,
                     transport_fee: transportFee,
                     status: 'planned',
+                    is_makeup: isMakeupRequest || false,
                 })
 
             if (lessonError) throw lessonError
