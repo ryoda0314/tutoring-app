@@ -38,6 +38,7 @@ export default function NewStudentPage() {
     const [subjects, setSubjects] = useState('')
     const [contact, setContact] = useState('')
     const [note, setNote] = useState('')
+    const [transportationFee, setTransportationFee] = useState('')
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -71,6 +72,7 @@ export default function NewStudentPage() {
                     subjects: subjectsArray,
                     contact: contact.trim() || null,
                     note: note.trim() || null,
+                    transportation_fee: parseInt(transportationFee) || 0,
                 })
 
             if (insertError) throw insertError
@@ -136,6 +138,15 @@ export default function NewStudentPage() {
                         value={contact}
                         onChange={(e) => setContact(e.target.value)}
                         placeholder="LINE ID: yamada_taro"
+                    />
+
+                    <Input
+                        type="number"
+                        label="交通費（円）"
+                        value={transportationFee}
+                        onChange={(e) => setTransportationFee(e.target.value)}
+                        placeholder="500"
+                        min="0"
                     />
 
                     <Textarea

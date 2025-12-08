@@ -116,12 +116,46 @@ export function TeacherCalendarClient() {
     const handleQuickApprove = async (request: ScheduleRequestWithStudent) => {
         const supabase = createClient()
 
-        // Calculate hours
+        // Calculate hours and minutes
         const [startH, startM] = request.start_time.split(':').map(Number)
         const [endH, endM] = request.end_time.split(':').map(Number)
-        const hours = (endH * 60 + endM - startH * 60 - startM) / 60
+        const totalMinutes = endH * 60 + endM - startH * 60 - startM
+        const hours = totalMinutes / 60
 
-        // Create lesson
+        // Check if this is a makeup request (memo contains 【振替申請】)
+        const isMakeupRequest = request.memo?.includes('【振替申請】')
+
+        // If makeup request, deduct from makeup credits
+        if (isMakeupRequest) {
+            // Get available makeup credits (oldest first)
+            const { data: credits } = await supabase
+                .from('makeup_credits')
+                .select('*')
+                .eq('student_id', request.student_id)
+                .gt('total_minutes', 0)
+                .gt('expires_at', new Date().toISOString())
+                .order('expires_at', { ascending: true })
+
+            if (credits && credits.length > 0) {
+                let remainingToDeduct = totalMinutes
+
+                for (const credit of credits) {
+                    if (remainingToDeduct <= 0) break
+
+                    const deductAmount = Math.min(credit.total_minutes, remainingToDeduct)
+                    const newTotal = credit.total_minutes - deductAmount
+
+                    await supabase
+                        .from('makeup_credits')
+                        .update({ total_minutes: newTotal })
+                        .eq('id', credit.id)
+
+                    remainingToDeduct -= deductAmount
+                }
+            }
+        }
+
+        // Create lesson (for makeup: amount = 0)
         await supabase
             .from('lessons')
             .insert({
@@ -130,7 +164,7 @@ export function TeacherCalendarClient() {
                 start_time: request.start_time,
                 end_time: request.end_time,
                 hours,
-                amount: Math.round(hours * 3500),
+                amount: isMakeupRequest ? 0 : Math.round(hours * 3500),
                 transport_fee: request.location === '日暮里' ? 900 : request.location === '蓮沼' ? 1500 : 0,
                 status: 'planned',
             })

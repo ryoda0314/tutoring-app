@@ -90,7 +90,42 @@ export function ScheduleRequestsClient() {
         try {
             // Calculate lesson details
             const hours = calculateHours(request.start_time.slice(0, 5), request.end_time.slice(0, 5))
-            const amount = calculateLessonAmount(hours)
+            const totalMinutes = hours * 60
+
+            // Check if this is a makeup request
+            const isMakeupRequest = request.memo?.includes('【振替申請】')
+
+            // If makeup request, deduct from makeup credits
+            if (isMakeupRequest) {
+                // Get available makeup credits (oldest first)
+                const { data: credits } = await supabase
+                    .from('makeup_credits')
+                    .select('*')
+                    .eq('student_id', request.student_id)
+                    .gt('total_minutes', 0)
+                    .gt('expires_at', new Date().toISOString())
+                    .order('expires_at', { ascending: true })
+
+                if (credits && credits.length > 0) {
+                    let remainingToDeduct = totalMinutes
+
+                    for (const credit of credits) {
+                        if (remainingToDeduct <= 0) break
+
+                        const deductAmount = Math.min(credit.total_minutes, remainingToDeduct)
+                        const newTotal = credit.total_minutes - deductAmount
+
+                        await supabase
+                            .from('makeup_credits')
+                            .update({ total_minutes: newTotal })
+                            .eq('id', credit.id)
+
+                        remainingToDeduct -= deductAmount
+                    }
+                }
+            }
+
+            const amount = isMakeupRequest ? 0 : calculateLessonAmount(hours)
             const transportFee = getTransportFee(request.location)
 
             // Create lesson

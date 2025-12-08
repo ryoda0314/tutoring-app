@@ -20,6 +20,7 @@ export interface Student {
     subjects: string[]
     contact: string | null
     note: string | null
+    transportation_fee: number
     created_at: string
 }
 
@@ -52,6 +53,7 @@ export interface Lesson {
     amount: number
     transport_fee: number
     status: LessonStatus
+    is_makeup: boolean
     memo: string | null
     homework: string | null
     created_at: string
@@ -78,6 +80,44 @@ export interface MakeupCredit {
     expires_at: string
     origin_lesson_id: string | null
     created_at: string
+}
+
+export interface TeacherSettings {
+    id: string
+    teacher_id: string
+    lesson_price: number
+    lesson_duration: number
+    notes: string | null
+    created_at: string
+    updated_at: string
+}
+
+export interface StudentLocation {
+    id: string
+    student_id: string
+    name: string
+    transportation_fee: number
+    created_at: string
+}
+
+export interface MonthlyPayment {
+    id: string
+    student_id: string
+    year_month: string // 'YYYY-MM' format
+    total_amount: number
+    payment_reported_at: string | null // When parent reported payment
+    payment_confirmed_at: string | null // When teacher confirmed
+    created_at: string
+    updated_at: string
+}
+
+export type PaymentStatus = 'unpaid' | 'reported' | 'confirmed'
+
+export function getPaymentStatus(payment: MonthlyPayment | null): PaymentStatus {
+    if (!payment) return 'unpaid'
+    if (payment.payment_confirmed_at) return 'confirmed'
+    if (payment.payment_reported_at) return 'reported'
+    return 'unpaid'
 }
 
 // Create/Update types (without auto-generated fields)

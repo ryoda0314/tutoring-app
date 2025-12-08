@@ -8,7 +8,7 @@ import { formatMakeupTime } from '@/lib/makeup'
 import type { Student } from '@/types/database'
 import {
     Users,
-    Plus,
+    UserPlus,
     GraduationCap,
     CalendarDays,
     Clock,
@@ -69,10 +69,10 @@ export default async function TeacherStudentsPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-display text-ink">生徒一覧</h1>
-                <Link href="/teacher/students/new">
+                <Link href="/teacher/invite">
                     <Button variant="primary">
-                        <Plus size={18} />
-                        生徒を追加
+                        <UserPlus size={18} />
+                        招待リンクを作成
                     </Button>
                 </Link>
             </div>
@@ -82,11 +82,11 @@ export default async function TeacherStudentsPage() {
                 <Card padding="lg" className="text-center">
                     <Users size={48} className="mx-auto mb-4 text-ink-faint" />
                     <h2 className="font-display text-lg text-ink mb-2">生徒がまだいません</h2>
-                    <p className="text-ink-light mb-4">生徒を追加してレッスン管理を始めましょう</p>
-                    <Link href="/teacher/students/new">
+                    <p className="text-ink-light mb-4">招待リンクを作成して保護者に送信しましょう</p>
+                    <Link href="/teacher/invite">
                         <Button variant="primary">
-                            <Plus size={16} />
-                            最初の生徒を追加
+                            <UserPlus size={16} />
+                            招待リンクを作成
                         </Button>
                     </Link>
                 </Card>

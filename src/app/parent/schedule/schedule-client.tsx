@@ -52,7 +52,7 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
                 .lte('date', format(monthEnd, 'yyyy-MM-dd'))
                 .order('date')
 
-            // Fetch lessons for this month
+            // Fetch lessons for this month (including cancelled)
             const { data: lessonsData } = await supabase
                 .from('lessons')
                 .select('*')
@@ -81,19 +81,19 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
     // Get lessons and requests for a specific date
     const getEventsForDate = (date: Date) => {
         const dateStr = format(date, 'yyyy-MM-dd')
-        const dayLessons = lessons.filter(l => l.date === dateStr && l.status !== 'cancelled')
+        const dayLessons = lessons.filter(l => l.date === dateStr)
 
-        // Filter out requests that have a corresponding confirmed lesson
+        // Filter out requests that have a corresponding lesson (active or cancelled)
         const dayRequests = requests.filter(r => {
             if (r.date !== dateStr) return false
 
-            // If request is confirmed, check if there's a matching lesson
+            // If request is confirmed, check if there's a matching lesson (any status)
             if (r.status === 'confirmed') {
                 const hasMatchingLesson = dayLessons.some(l =>
                     l.start_time.slice(0, 5) === r.start_time.slice(0, 5) &&
                     l.end_time.slice(0, 5) === r.end_time.slice(0, 5)
                 )
-                // Hide confirmed requests if lesson exists
+                // Hide confirmed requests if any lesson exists
                 return !hasMatchingLesson
             }
 
@@ -138,12 +138,21 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
 
                 {hasEvents && (
                     <div className="absolute bottom-1 left-1 right-1 flex gap-0.5">
+                        {/* Active lessons - green */}
                         {dayLessons.filter(l => l.status !== 'cancelled').map((_, i) => (
                             <div
                                 key={`lesson-${i}`}
                                 className={`h-1.5 flex-1 rounded-full ${isSelected ? 'bg-paper-light/70' : 'bg-sage'}`}
                             />
                         ))}
+                        {/* Cancelled lessons - gray (smaller) */}
+                        {dayLessons.filter(l => l.status === 'cancelled').map((_, i) => (
+                            <div
+                                key={`cancelled-${i}`}
+                                className={`h-1 flex-1 rounded-full ${isSelected ? 'bg-paper-light/30' : 'bg-ink-faint/40'}`}
+                            />
+                        ))}
+                        {/* Requests */}
                         {dayRequests.map((r, i) => (
                             <div
                                 key={`request-${i}`}
@@ -203,6 +212,7 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
                                 </div>
                                 <NaturalScheduleInput
                                     studentId={studentId}
+                                    contextMonth={currentMonth}
                                     onSuccess={handleSuccess}
                                 />
                             </Card>
@@ -300,17 +310,29 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
                                             {dayLessons.map(lesson => (
                                                 <div
                                                     key={lesson.id}
-                                                    className="p-3 rounded-lg bg-sage-subtle/30 border border-sage-subtle"
+                                                    className={`p-3 rounded-lg ${lesson.status === 'cancelled'
+                                                        ? 'bg-ink-faint/10 border border-ink-faint/30'
+                                                        : 'bg-sage-subtle/30 border border-sage-subtle'
+                                                        }`}
                                                 >
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-sm font-medium text-ink">
-                                                            確定レッスン
+                                                        <span className={`text-sm font-medium ${lesson.status === 'cancelled'
+                                                            ? 'text-ink-faint line-through'
+                                                            : 'text-ink'
+                                                            }`}>
+                                                            {lesson.status === 'cancelled' ? 'キャンセル' : '確定レッスン'}
                                                         </span>
-                                                        <span className="text-xs text-sage font-medium">
+                                                        <span className={`text-xs font-medium ${lesson.status === 'cancelled'
+                                                            ? 'text-ink-faint'
+                                                            : 'text-sage'
+                                                            }`}>
                                                             {lesson.hours}時間
                                                         </span>
                                                     </div>
-                                                    <p className="text-sm text-ink-light">
+                                                    <p className={`text-sm ${lesson.status === 'cancelled'
+                                                        ? 'text-ink-faint line-through'
+                                                        : 'text-ink-light'
+                                                        }`}>
                                                         {lesson.start_time.slice(0, 5)} - {lesson.end_time.slice(0, 5)}
                                                     </p>
                                                 </div>
@@ -351,7 +373,7 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
             </AnimatePresence>
 
             {/* Legend */}
-            <div className="flex items-center gap-4 text-xs text-ink-faint">
+            <div className="flex items-center gap-4 text-xs text-ink-faint flex-wrap">
                 <div className="flex items-center gap-1.5">
                     <div className="w-3 h-3 rounded-full bg-sage" />
                     <span>確定</span>
@@ -363,6 +385,10 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
                 <div className="flex items-center gap-1.5">
                     <div className="w-3 h-3 rounded-full bg-accent" />
                     <span>却下</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-ink-faint/50" />
+                    <span>キャンセル</span>
                 </div>
             </div>
         </div>

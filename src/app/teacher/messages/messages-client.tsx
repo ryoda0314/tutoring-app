@@ -5,11 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea, Select } from '@/components/ui/input'
-import { MessageTypeBadge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/loading'
 import type { Message, Student, MessageType } from '@/types/database'
 import {
@@ -19,10 +18,6 @@ import {
     Pin,
     ChevronRight,
 } from 'lucide-react'
-
-interface MessageWithStudent extends Message {
-    student?: Student
-}
 
 const messageTypeOptions = [
     { value: '連絡事項', label: '連絡事項' },
@@ -74,7 +69,7 @@ export function TeacherMessagesClient() {
                 .from('messages')
                 .select('*')
                 .eq('student_id', selectedStudentId)
-                .order('created_at', { ascending: true })
+                .order('created_at', { ascending: false })
             setMessages(data || [])
         }
         fetchMessages()
@@ -92,7 +87,7 @@ export function TeacherMessagesClient() {
                     filter: `student_id=eq.${selectedStudentId}`,
                 },
                 (payload) => {
-                    setMessages((prev) => [...prev, payload.new as Message])
+                    setMessages((prev) => [payload.new as Message, ...prev])
                 }
             )
             .subscribe()
@@ -101,11 +96,6 @@ export function TeacherMessagesClient() {
             supabase.removeChannel(channel)
         }
     }, [selectedStudentId])
-
-    // Scroll to bottom when messages change
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, [messages])
 
     const handleSend = async () => {
         if (!newMessage.trim() || !selectedStudentId) return
@@ -139,168 +129,163 @@ export function TeacherMessagesClient() {
     const selectedStudent = students.find(s => s.id === selectedStudentId)
 
     return (
-        <div className="h-[calc(100vh-12rem)] flex gap-6">
-            {/* Student list */}
-            <div className="w-72 flex-shrink-0 hidden md:block">
-                <Card padding="none" className="h-full overflow-hidden flex flex-col">
-                    <div className="p-4 border-b border-paper-dark">
-                        <h2 className="font-display text-lg text-ink">メッセージ</h2>
+        <div className="space-y-4">
+            <h1 className="text-xl font-display text-ink">メッセージ</h1>
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                {/* Student list - sidebar */}
+                <Card padding="none" className="lg:col-span-1 h-fit max-h-[70vh] overflow-hidden flex flex-col">
+                    <div className="p-2 border-b border-paper-dark bg-paper-light">
+                        <h2 className="text-sm font-medium text-ink-light">生徒一覧</h2>
                     </div>
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="overflow-y-auto">
                         {loading ? (
-                            <div className="flex items-center justify-center py-8">
+                            <div className="flex items-center justify-center py-4">
                                 <Spinner />
                             </div>
-                        ) : students.length === 0 ? (
-                            <p className="text-ink-faint text-sm p-4 text-center">
-                                生徒がいません
-                            </p>
                         ) : (
-                            <div className="p-2 space-y-1">
+                            <div className="p-1">
                                 {students.map(student => (
                                     <button
                                         key={student.id}
                                         onClick={() => setSelectedStudentId(student.id)}
                                         className={`
-                      w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors
-                      ${selectedStudentId === student.id
+                                            w-full flex items-center gap-2 p-2 rounded text-left text-sm transition-colors
+                                            ${selectedStudentId === student.id
                                                 ? 'bg-ink text-paper-light'
                                                 : 'hover:bg-paper-dark'
                                             }
-                    `}
+                                        `}
                                     >
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${selectedStudentId === student.id ? 'bg-paper-light/20' : 'bg-sage-subtle'
-                                            }`}>
-                                            <User size={20} className={selectedStudentId === student.id ? 'text-paper-light' : 'text-sage'} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-medium truncate">{student.name}</p>
-                                            <p className={`text-xs truncate ${selectedStudentId === student.id ? 'text-paper-light/70' : 'text-ink-faint'
-                                                }`}>
-                                                {student.grade}
-                                            </p>
-                                        </div>
-                                        <ChevronRight size={16} className="opacity-50" />
+                                        <User size={14} />
+                                        <span className="truncate">{student.name}</span>
                                     </button>
                                 ))}
                             </div>
                         )}
                     </div>
                 </Card>
-            </div>
 
-            {/* Mobile student selector */}
-            <div className="md:hidden mb-4">
-                <Select
-                    value={selectedStudentId || ''}
-                    onChange={(e) => setSelectedStudentId(e.target.value || null)}
-                    options={[
-                        { value: '', label: '生徒を選択' },
-                        ...students.map(s => ({ value: s.id, label: s.name })),
-                    ]}
-                />
-            </div>
-
-            {/* Message area */}
-            <div className="flex-1 flex flex-col min-w-0">
-                {selectedStudentId ? (
-                    <Card padding="none" className="flex-1 flex flex-col overflow-hidden">
-                        {/* Header */}
-                        <div className="p-4 border-b border-paper-dark flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-sage-subtle flex items-center justify-center">
-                                <User size={20} className="text-sage" />
+                {/* Message area - main content */}
+                <div className="lg:col-span-3 space-y-3">
+                    {selectedStudentId ? (
+                        <>
+                            {/* Header */}
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <User size={16} className="text-sage" />
+                                    <span className="font-display text-ink">{selectedStudent?.name}</span>
+                                    <span className="text-xs text-ink-faint">{selectedStudent?.grade}</span>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="font-display text-lg text-ink">{selectedStudent?.name}</h3>
-                                <p className="text-sm text-ink-faint">{selectedStudent?.grade}</p>
-                            </div>
-                        </div>
 
-                        {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                            {messages.map(message => (
-                                <motion.div
-                                    key={message.id}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className={`flex ${message.sender_type === 'teacher' ? 'justify-end' : 'justify-start'}`}
-                                >
-                                    <div
-                                        className={`max-w-[80%] p-3 rounded-lg ${message.sender_type === 'teacher'
-                                                ? 'bg-ink text-paper-light rounded-br-sm'
-                                                : 'bg-paper-dark text-ink rounded-bl-sm'
-                                            }`}
+                            {/* Input at top */}
+                            <Card padding="sm" className="bg-paper-light">
+                                <div className="flex items-start gap-2">
+                                    <Select
+                                        value={messageType}
+                                        onChange={(e) => setMessageType(e.target.value as MessageType)}
+                                        options={messageTypeOptions}
+                                        className="w-24 text-xs"
+                                    />
+                                    <Textarea
+                                        value={newMessage}
+                                        onChange={(e) => setNewMessage(e.target.value)}
+                                        placeholder="メッセージを入力..."
+                                        className="flex-1 min-h-[40px] max-h-[80px] text-sm py-2"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault()
+                                                handleSend()
+                                            }
+                                        }}
+                                    />
+                                    <Button
+                                        variant="primary"
+                                        size="sm"
+                                        onClick={handleSend}
+                                        isLoading={sending}
+                                        disabled={!newMessage.trim()}
                                     >
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <MessageTypeBadge type={message.message_type} />
-                                            {message.is_pinned && (
-                                                <Pin size={12} className="text-ochre" />
-                                            )}
-                                        </div>
-                                        <p className="text-sm whitespace-pre-wrap">{message.body}</p>
-                                        <div className="flex items-center justify-between mt-2">
-                                            <p className={`text-xs ${message.sender_type === 'teacher' ? 'text-paper-light/60' : 'text-ink-faint'
-                                                }`}>
-                                                {format(new Date(message.created_at), 'M/d H:mm', { locale: ja })}
-                                            </p>
-                                            {message.sender_type === 'teacher' && (
-                                                <button
-                                                    onClick={() => handlePin(message.id, message.is_pinned)}
-                                                    className="opacity-50 hover:opacity-100 transition-opacity"
-                                                >
-                                                    <Pin size={12} />
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                            <div ref={messagesEndRef} />
-                        </div>
+                                        <Send size={14} />
+                                    </Button>
+                                </div>
+                            </Card>
 
-                        {/* Input */}
-                        <div className="p-4 border-t border-paper-dark">
-                            <div className="flex gap-2 mb-2">
-                                <Select
-                                    value={messageType}
-                                    onChange={(e) => setMessageType(e.target.value as MessageType)}
-                                    options={messageTypeOptions}
-                                    className="w-32"
-                                />
-                            </div>
-                            <div className="flex gap-2">
-                                <Textarea
-                                    value={newMessage}
-                                    onChange={(e) => setNewMessage(e.target.value)}
-                                    placeholder="メッセージを入力..."
-                                    className="flex-1 min-h-[60px] max-h-[120px]"
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault()
-                                            handleSend()
-                                        }
-                                    }}
-                                />
-                                <Button
-                                    variant="primary"
-                                    onClick={handleSend}
-                                    isLoading={sending}
-                                    disabled={!newMessage.trim()}
-                                    className="self-end"
-                                >
-                                    <Send size={18} />
-                                </Button>
-                            </div>
-                        </div>
-                    </Card>
-                ) : (
-                    <Card padding="lg" className="flex-1 flex items-center justify-center">
-                        <div className="text-center">
-                            <MessageSquare size={48} className="mx-auto mb-4 text-ink-faint" />
-                            <p className="text-ink-light">生徒を選択してメッセージを開始</p>
-                        </div>
-                    </Card>
-                )}
+                            {/* Messages list - horizontal layout */}
+                            <Card padding="none" className="overflow-hidden">
+                                <div className="max-h-[55vh] overflow-y-auto">
+                                    {messages.length === 0 ? (
+                                        <div className="p-8 text-center text-ink-faint text-sm">
+                                            メッセージがありません
+                                        </div>
+                                    ) : (
+                                        <table className="w-full text-sm">
+                                            <thead className="bg-paper-dark/50 sticky top-0">
+                                                <tr className="text-left text-xs text-ink-faint">
+                                                    <th className="p-2 w-20">日時</th>
+                                                    <th className="p-2 w-16">送信者</th>
+                                                    <th className="p-2 w-20">種別</th>
+                                                    <th className="p-2">内容</th>
+                                                    <th className="p-2 w-10"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {messages.map((message, index) => (
+                                                    <motion.tr
+                                                        key={message.id}
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 1 }}
+                                                        className={`border-b border-paper-dark/50 hover:bg-paper-dark/30 ${message.sender_type === 'teacher'
+                                                                ? 'bg-sage-subtle/20'
+                                                                : ''
+                                                            } ${message.is_pinned ? 'bg-ochre-subtle/30' : ''}`}
+                                                    >
+                                                        <td className="p-2 text-xs text-ink-faint whitespace-nowrap">
+                                                            {format(new Date(message.created_at), 'M/d H:mm', { locale: ja })}
+                                                        </td>
+                                                        <td className="p-2">
+                                                            <span className={`text-xs px-1.5 py-0.5 rounded ${message.sender_type === 'teacher'
+                                                                    ? 'bg-sage text-paper-light'
+                                                                    : 'bg-ink-faint/20 text-ink'
+                                                                }`}>
+                                                                {message.sender_type === 'teacher' ? '先生' : '保護者'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-2">
+                                                            <span className="text-xs text-ink-light">
+                                                                {message.message_type}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-2 text-ink">
+                                                            <p className="line-clamp-2">{message.body}</p>
+                                                        </td>
+                                                        <td className="p-2">
+                                                            {message.sender_type === 'teacher' && (
+                                                                <button
+                                                                    onClick={() => handlePin(message.id, message.is_pinned)}
+                                                                    className={`p-1 rounded hover:bg-paper-dark ${message.is_pinned ? 'text-ochre' : 'text-ink-faint'
+                                                                        }`}
+                                                                >
+                                                                    <Pin size={12} />
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    </motion.tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                </div>
+                            </Card>
+                        </>
+                    ) : (
+                        <Card padding="lg" className="text-center">
+                            <MessageSquare size={32} className="mx-auto mb-3 text-ink-faint" />
+                            <p className="text-ink-light text-sm">生徒を選択してメッセージを表示</p>
+                        </Card>
+                    )}
+                </div>
             </div>
         </div>
     )

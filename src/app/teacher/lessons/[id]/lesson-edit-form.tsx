@@ -8,13 +8,15 @@ import { Button } from '@/components/ui/button'
 import { Textarea, Select } from '@/components/ui/input'
 import { addMonths } from 'date-fns'
 import type { LessonStatus } from '@/types/database'
-import { Save, BookOpen, FileText, AlertCircle, Check, AlertTriangle } from 'lucide-react'
+import { Save, BookOpen, FileText, AlertCircle, Check, AlertTriangle, Ban } from 'lucide-react'
 
 interface LessonEditFormProps {
     lessonId: string
     studentId: string
     lessonDate: string
     lessonHours: number
+    lessonAmount: number
+    isMakeup: boolean  // Whether this is a makeup lesson
     initialStatus: LessonStatus
     initialMemo: string
     initialHomework: string
@@ -31,6 +33,8 @@ export function LessonEditForm({
     studentId,
     lessonDate,
     lessonHours,
+    lessonAmount,
+    isMakeup,
     initialStatus,
     initialMemo,
     initialHomework,
@@ -77,8 +81,9 @@ export function LessonEditForm({
 
             if (updateError) throw updateError
 
-            // If cancelling, create makeup credit
-            if (isChangingToCancel) {
+            // If cancelling a REGULAR lesson (not makeup), create makeup credit
+            // Makeup lessons do NOT get credits when cancelled - they simply expire
+            if (isChangingToCancel && !isMakeup) {
                 const makeupMinutes = Math.round(lessonHours * 60)
                 const expiresAt = addMonths(new Date(lessonDate), 1)
 
@@ -93,7 +98,6 @@ export function LessonEditForm({
 
                 if (makeupError) {
                     console.error('Makeup credit error:', makeupError)
-                    // Don't throw - lesson is already cancelled
                 }
             }
 
@@ -129,6 +133,16 @@ export function LessonEditForm({
                 </CardContent>
             </Card>
 
+            {/* Makeup lesson indicator */}
+            {isMakeup && (
+                <div className="p-3 bg-ochre-subtle/30 rounded-lg flex items-center gap-2">
+                    <Ban size={16} className="text-ochre" />
+                    <p className="text-sm text-ochre">
+                        振替レッスン（キャンセルすると振替権利は失効します）
+                    </p>
+                </div>
+            )}
+
             {/* Cancel confirmation */}
             {showCancelConfirm && (
                 <Card padding="md" className="bg-accent-subtle/30 border-accent">
@@ -138,10 +152,15 @@ export function LessonEditForm({
                             <p className="font-medium text-accent mb-2">
                                 レッスンをキャンセルしますか？
                             </p>
-                            <p className="text-sm text-ink-light mb-3">
-                                キャンセルすると、生徒に <strong>{lessonHours}時間分</strong> の振替時間が付与されます。
-                                この操作は取り消せません。
-                            </p>
+                            {isMakeup ? (
+                                <p className="text-sm text-ink-light mb-3">
+                                    これは振替レッスンです。<strong className="text-accent">キャンセルすると振替権利は失効し、返金もありません。</strong>
+                                </p>
+                            ) : (
+                                <p className="text-sm text-ink-light mb-3">
+                                    キャンセルすると、生徒に <strong>{lessonHours}時間分</strong> の振替時間が付与されます。
+                                </p>
+                            )}
                             <div className="flex gap-2">
                                 <Button
                                     variant="primary"

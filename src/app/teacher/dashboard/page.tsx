@@ -58,16 +58,23 @@ export default async function TeacherDashboard() {
         .select('*', { count: 'exact', head: true })
         .eq('status', 'requested')
 
-    // Calculate this month's expected income
+    // Calculate this month's income (planned + cancelled = confirmed, excluding done/makeup)
+    // Cancelled lessons still count as revenue (no refunds)
     const { data: monthLessons } = await supabase
         .from('lessons')
-        .select('amount, transport_fee')
+        .select('amount, transport_fee, is_makeup, status')
         .gte('date', format(monthStart, 'yyyy-MM-dd'))
         .lte('date', format(monthEnd, 'yyyy-MM-dd'))
-        .neq('status', 'cancelled')
+        .in('status', ['planned', 'cancelled'])  // Confirmed lessons (done not counted to avoid duplication)
 
+    // Only count non-makeup lessons for revenue
+    // Cancelled lessons: count amount but NOT transport_fee (didn't travel)
     const monthlyIncome = monthLessons?.reduce(
-        (sum, lesson) => sum + (lesson.amount || 0) + (lesson.transport_fee || 0),
+        (sum, lesson) => {
+            if (lesson.is_makeup) return sum  // Makeup lessons don't add revenue
+            const transportFee = lesson.status === 'cancelled' ? 0 : (lesson.transport_fee || 0)
+            return sum + (lesson.amount || 0) + transportFee
+        },
         0
     ) ?? 0
 

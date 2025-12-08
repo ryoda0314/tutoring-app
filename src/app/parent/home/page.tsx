@@ -1,11 +1,17 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { format } from 'date-fns'
+import { format, addMonths, startOfMonth } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { ScheduleStatusBadge, LessonStatusBadge } from '@/components/ui/badge'
 import { formatMakeupTime, formatExpirationStatus } from '@/lib/makeup'
+import { formatCurrency } from '@/lib/pricing'
+import {
+    getBillingMonthRange,
+    calculateBillingInfo,
+    type Lesson,
+} from '@/lib/billing'
 import {
     CalendarDays,
     CalendarClock,
@@ -13,6 +19,9 @@ import {
     MessageSquare,
     ChevronRight,
     BookOpen,
+    Wallet,
+    CheckCircle2,
+    AlertCircle,
 } from 'lucide-react'
 
 export default async function ParentHome() {
@@ -96,6 +105,22 @@ export default async function ParentHome() {
         .select('*', { count: 'exact', head: true })
         .eq('student_id', studentId)
 
+    // Fetch next month billing info
+    const nextMonth = addMonths(startOfMonth(today), 1)
+    const { start, end } = getBillingMonthRange(nextMonth)
+    const { data: nextMonthLessons } = await supabase
+        .from('lessons')
+        .select('*')
+        .eq('student_id', studentId)
+        .gte('date', start)
+        .lte('date', end)
+
+    const billingInfo = calculateBillingInfo(
+        (nextMonthLessons || []) as Lesson[],
+        nextMonth,
+        today
+    )
+
     return (
         <div className="space-y-8">
             {/* Welcome Header */}
@@ -143,33 +168,58 @@ export default async function ParentHome() {
             )}
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-3">
                 {/* Pending Requests */}
                 <Link href="/parent/schedule">
                     <Card padding="md" className="animate-fade-slide-up stagger-2 cursor-pointer h-full">
                         <div className="flex flex-col items-center text-center">
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${pendingRequests && pendingRequests.length > 0 ? 'bg-ochre-subtle' : 'bg-paper-dark'
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${pendingRequests && pendingRequests.length > 0 ? 'bg-ochre-subtle' : 'bg-paper-dark'
                                 }`}>
-                                <CalendarClock size={24} className={
+                                <CalendarClock size={20} className={
                                     pendingRequests && pendingRequests.length > 0 ? 'text-ochre' : 'text-ink-faint'
                                 } />
                             </div>
                             <p className="text-lg font-display text-ink">{pendingRequests?.length ?? 0}</p>
-                            <p className="text-xs text-ink-light">申請中の日程</p>
+                            <p className="text-xs text-ink-light">申請中</p>
+                        </div>
+                    </Card>
+                </Link>
+
+                {/* Next Month Billing */}
+                <Link href="/parent/billing">
+                    <Card padding="md" className="animate-fade-slide-up stagger-3 cursor-pointer h-full">
+                        <div className="flex flex-col items-center text-center">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${billingInfo.totalAmount > 0 ? 'bg-sage-subtle' : 'bg-paper-dark'
+                                }`}>
+                                <Wallet size={20} className={billingInfo.totalAmount > 0 ? 'text-sage' : 'text-ink-faint'} />
+                            </div>
+                            <p className="text-base font-display text-ink">{formatCurrency(billingInfo.totalAmount)}</p>
+                            <p className="text-xs text-ink-light">来月請求</p>
+                            <div className="mt-1">
+                                {billingInfo.isConfirmed ? (
+                                    <span className="inline-flex items-center gap-0.5 text-xs text-sage">
+                                        <CheckCircle2 size={10} />確定
+                                    </span>
+                                ) : (
+                                    <span className="inline-flex items-center gap-0.5 text-xs text-ochre">
+                                        <AlertCircle size={10} />暫定
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </Card>
                 </Link>
 
                 {/* Makeup Credits */}
                 <Link href="/parent/makeup">
-                    <Card padding="md" className="animate-fade-slide-up stagger-3 cursor-pointer h-full">
+                    <Card padding="md" className="animate-fade-slide-up stagger-4 cursor-pointer h-full">
                         <div className="flex flex-col items-center text-center">
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${totalMakeupMinutes > 0 ? 'bg-ochre-subtle' : 'bg-paper-dark'
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${totalMakeupMinutes > 0 ? 'bg-ochre-subtle' : 'bg-paper-dark'
                                 }`}>
-                                <Clock size={24} className={totalMakeupMinutes > 0 ? 'text-ochre' : 'text-ink-faint'} />
+                                <Clock size={20} className={totalMakeupMinutes > 0 ? 'text-ochre' : 'text-ink-faint'} />
                             </div>
-                            <p className="text-lg font-display text-ink">{formatMakeupTime(totalMakeupMinutes)}</p>
-                            <p className="text-xs text-ink-light">振替残り時間</p>
+                            <p className="text-base font-display text-ink">{formatMakeupTime(totalMakeupMinutes)}</p>
+                            <p className="text-xs text-ink-light">振替残り</p>
                             {nearestExpiration && (
                                 <p className="text-xs text-accent mt-1">
                                     {formatExpirationStatus(nearestExpiration)}

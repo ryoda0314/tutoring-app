@@ -14,6 +14,8 @@ import {
     Menu,
     X,
     GraduationCap,
+    Settings,
+    Wallet,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -21,8 +23,10 @@ const parentNavItems = [
     { href: '/parent/home', label: 'ホーム', icon: Home },
     { href: '/parent/schedule', label: '日程予約', icon: Calendar },
     { href: '/parent/lessons', label: 'レッスン履歴', icon: BookOpen },
+    { href: '/parent/billing', label: '請求', icon: Wallet },
     { href: '/parent/makeup', label: '振替確認', icon: Clock },
     { href: '/parent/messages', label: 'メッセージ', icon: MessageSquare },
+    { href: '/parent/settings', label: '設定', icon: Settings },
 ]
 
 interface ParentLayoutProps {

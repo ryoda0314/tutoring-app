@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS students (
   subjects TEXT[] DEFAULT '{}',  -- e.g., ARRAY['数学', '英語']
   contact TEXT,  -- LINE ID, email, phone, etc.
   note TEXT,
+  transportation_fee INTEGER DEFAULT 0,  -- Transportation fee in JPY for this student
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

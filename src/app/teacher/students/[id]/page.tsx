@@ -18,6 +18,7 @@ import {
     BookOpen,
     ChevronRight,
 } from 'lucide-react'
+import { StudentLocationsManager } from '@/components/student/locations-manager'
 
 export default async function TeacherStudentDetailPage({
     params,
@@ -160,6 +161,13 @@ export default async function TeacherStudentDetailPage({
                         </div>
                     )}
 
+                    <div>
+                        <p className="text-xs text-ink-faint mb-1">交通費</p>
+                        <p className="text-sm text-ink font-medium">
+                            {formatCurrency(student.transportation_fee || 0)}
+                        </p>
+                    </div>
+
                     {student.contact && (
                         <div>
                             <p className="text-xs text-ink-faint mb-1">連絡先</p>
@@ -175,6 +183,9 @@ export default async function TeacherStudentDetailPage({
                     )}
                 </CardContent>
             </Card>
+
+            {/* Locations and transportation fees */}
+            <StudentLocationsManager studentId={id} />
 
             {/* Makeup credits */}
             {makeupCredits && makeupCredits.length > 0 && (

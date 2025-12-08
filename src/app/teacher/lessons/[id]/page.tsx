@@ -113,6 +113,8 @@ export default async function TeacherLessonDetailPage({
                 studentId={lesson.student_id}
                 lessonDate={lesson.date}
                 lessonHours={lesson.hours || 1}
+                lessonAmount={lesson.amount || 0}
+                isMakeup={lesson.is_makeup || false}
                 initialStatus={lesson.status}
                 initialMemo={lesson.memo || ''}
                 initialHomework={lesson.homework || ''}

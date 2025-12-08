@@ -1,23 +1,13 @@
 import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
-import { addDays, addWeeks, nextDay, format, parse } from 'date-fns'
+import { addDays, addWeeks, format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 })
 
-// Weekday mapping for Japanese
-const weekdayMap: Record<string, 0 | 1 | 2 | 3 | 4 | 5 | 6> = {
-    '日': 0, '日曜': 0, '日曜日': 0,
-    '月': 1, '月曜': 1, '月曜日': 1,
-    '火': 2, '火曜': 2, '火曜日': 2,
-    '水': 3, '水曜': 3, '水曜日': 3,
-    '木': 4, '木曜': 4, '木曜日': 4,
-    '金': 5, '金曜': 5, '金曜日': 5,
-    '土': 6, '土曜': 6, '土曜日': 6,
-}
-
+// Single schedule result
 export interface ParsedSchedule {
     date: string // YYYY-MM-DD
     start_time: string // HH:MM
@@ -29,14 +19,22 @@ export interface ParsedSchedule {
     original_text: string
 }
 
+// Response that can contain multiple schedules
+export interface ParsedScheduleResponse {
+    schedules: ParsedSchedule[]
+    is_recurring: boolean
+    recurring_pattern: string | null // e.g., "毎週日曜日"
+}
+
 interface ParseRequest {
     text: string
+    contextMonth?: string // YYYY-MM format - the currently viewed calendar month
 }
 
 export async function POST(request: Request) {
     try {
         const body: ParseRequest = await request.json()
-        const { text } = body
+        const { text, contextMonth } = body
 
         if (!text || text.trim().length === 0) {
             return NextResponse.json(
@@ -49,36 +47,75 @@ export async function POST(request: Request) {
         const today = new Date()
         const currentDateStr = format(today, 'yyyy年M月d日（E）', { locale: ja })
 
-        const systemPrompt = `あなたは日本語の日程情報を解析するアシスタントです。
-ユーザーの入力から以下の情報を抽出してJSONで返してください：
+        // Parse context month if provided (the calendar month the user is viewing)
+        let contextMonthStr = ''
+        if (contextMonth) {
+            const [year, month] = contextMonth.split('-').map(Number)
+            contextMonthStr = `${year}年${month}月`
+        }
 
-- date: 日付（YYYY-MM-DD形式）
-- start_time: 開始時刻（HH:MM形式、24時間表記）
-- end_time: 終了時刻（HH:MM形式、24時間表記）
-- duration_hours: 時間数（数値）
-- location: 場所（"日暮里"、"蓮沼"、"オンライン"など、なければnull）
-- mode: "online"（オンライン）または"in-person"（対面）、判断できなければnull
-- confidence: 解析の確信度（"high", "medium", "low"）
+        const systemPrompt = `あなたは日本語の日程情報を解析するアシスタントです。
+ユーザーの入力から日程情報を抽出してJSONで返してください。
+
+【最重要】月の指定について：
+- 特定の月が明示されている場合（例：「1月の土曜日」「2月の毎週日曜」）、その月の日付のみを返してください
+- 絶対に指定された月以外の日付を含めないでください
+- 例：今日が12月8日で「1月の毎週土曜日」と言われたら、2025年1月の土曜日のみ（1/4, 1/11, 1/18, 1/25）を返す
+
+【繰り返しパターンの対応】：
+- 月の指定がある場合 → その月のすべての該当曜日
+- 「毎週◯曜」のみ（月指定なし） → 今日から4週間分
+- 「今月の◯曜日」 → 今月の残りすべての該当曜日
+
+JSONフォーマット：
+{
+  "is_recurring": boolean,
+  "recurring_pattern": string | null,  // 例: "毎週日曜日"
+  "schedules": [
+    {
+      "date": "YYYY-MM-DD",
+      "start_time": "HH:MM",
+      "end_time": "HH:MM",
+      "duration_hours": number,
+      "location": string | null,
+      "mode": "online" | "in-person" | null,
+      "confidence": "high" | "medium" | "low"
+    }
+  ]
+}
 
 今日は${currentDateStr}です。
+${contextMonthStr ? `
+【重要】ユーザーは現在カレンダーで${contextMonthStr}を表示しています。
+日付のみ（「5日」「15日」など）や曜日のみ（「土曜日」など）が指定された場合は、${contextMonthStr}の日付として解釈してください。
+` : ''}
+
+【解釈例】（今日が2024年12月8日の場合）：
+- 「1月の毎週土曜日 19時から」→ 2025-01-04, 2025-01-11, 2025-01-18, 2025-01-25 のみ（12月は含まない！）
+- 「来月の日曜日」→ 2025年1月のすべての日曜日
+- 「毎週火曜日」→ 12/10, 12/17, 12/24, 12/31（今日から4週間）
+- 「今月の土曜日」→ 12月の残りの土曜日
+- 「来週月曜」→ 次の月曜日1日のみ
 
 相対的な日付の解釈：
-- "来週◯曜" = 次の週の◯曜日
+- "来週◯曜" = 次の週の◯曜日（1日のみ）
 - "再来週" = 2週間後の週
 - "今週" = 今週
 - "明日" = 翌日
-- "明後日" = 2日後
+- "毎週◯曜"（月指定なし） = 今日から4週間分の◯曜日
+- "◯月の毎週△曜" = その月のすべての△曜日（他の月は絶対に含めない）
+- "今月の◯曜日" = 今月の残りすべての◯曜日
+- "来月の◯曜日" = 来月のすべての◯曜日
 
 時間の解釈：
 - "19時から2時間" = start_time: "19:00", end_time: "21:00", duration_hours: 2
 - "午後7時" = "19:00"
-- "夜7時" = "19:00"
+- 時間が不明な場合はデフォルト19:00〜21:00
 
 場所の解釈：
 - "日暮里で" = location: "日暮里", mode: "in-person"
-- "蓮沼で" = location: "蓮沼", mode: "in-person"
 - "オンラインで" = location: "オンライン", mode: "online"
-- "対面" or "対面希望" = mode: "in-person"
+- "対面" = mode: "in-person"
 
 必ずJSON形式のみで返答してください。説明は不要です。`
 
@@ -106,19 +143,42 @@ export async function POST(request: Request) {
 
         const parsed = JSON.parse(responseText)
 
-        // Validate and format the response
-        const result: ParsedSchedule = {
-            date: parsed.date || format(addDays(today, 7), 'yyyy-MM-dd'),
-            start_time: parsed.start_time || '19:00',
-            end_time: parsed.end_time || '21:00',
-            duration_hours: parsed.duration_hours || 2,
-            location: parsed.location || null,
-            mode: parsed.mode || null,
-            confidence: parsed.confidence || 'medium',
-            original_text: text,
+        // Handle both new format (with schedules array) and old format (single schedule)
+        if (parsed.schedules && Array.isArray(parsed.schedules)) {
+            // New format with multiple schedules
+            const result: ParsedScheduleResponse = {
+                schedules: parsed.schedules.map((s: any) => ({
+                    date: s.date || format(addDays(today, 7), 'yyyy-MM-dd'),
+                    start_time: s.start_time || '19:00',
+                    end_time: s.end_time || '21:00',
+                    duration_hours: s.duration_hours || 2,
+                    location: s.location || null,
+                    mode: s.mode || null,
+                    confidence: s.confidence || 'medium',
+                    original_text: text,
+                })),
+                is_recurring: parsed.is_recurring || false,
+                recurring_pattern: parsed.recurring_pattern || null,
+            }
+            return NextResponse.json(result)
+        } else {
+            // Legacy format - single schedule
+            const result: ParsedScheduleResponse = {
+                schedules: [{
+                    date: parsed.date || format(addDays(today, 7), 'yyyy-MM-dd'),
+                    start_time: parsed.start_time || '19:00',
+                    end_time: parsed.end_time || '21:00',
+                    duration_hours: parsed.duration_hours || 2,
+                    location: parsed.location || null,
+                    mode: parsed.mode || null,
+                    confidence: parsed.confidence || 'medium',
+                    original_text: text,
+                }],
+                is_recurring: false,
+                recurring_pattern: null,
+            }
+            return NextResponse.json(result)
         }
-
-        return NextResponse.json(result)
     } catch (error) {
         console.error('Schedule parsing error:', error)
 

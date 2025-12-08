@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS lessons (
   amount INTEGER NOT NULL,  -- Lesson fee in JPY (hours * 3500)
   transport_fee INTEGER DEFAULT 0,  -- Transport fee in JPY
   status TEXT DEFAULT 'planned' CHECK (status IN ('planned', 'done', 'cancelled')),
+  is_makeup BOOLEAN DEFAULT FALSE,  -- True if this is a makeup lesson (no additional charge)
   memo TEXT,  -- Lesson content notes
   homework TEXT,  -- Homework assignments
   created_at TIMESTAMPTZ DEFAULT NOW()

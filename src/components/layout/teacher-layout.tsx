@@ -15,6 +15,8 @@ import {
     Menu,
     X,
     UserPlus,
+    Settings,
+    CreditCard,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -26,6 +28,8 @@ const teacherNavItems = [
     { href: '/teacher/calendar', label: 'カレンダー', icon: Calendar },
     { href: '/teacher/messages', label: 'メッセージ', icon: MessageSquare },
     { href: '/teacher/makeup', label: '振替管理', icon: Clock },
+    { href: '/teacher/payments', label: '振込管理', icon: CreditCard },
+    { href: '/teacher/settings', label: '設定', icon: Settings },
 ]
 
 interface TeacherLayoutProps {
