@@ -105,8 +105,8 @@ export default function ParentSettingsPage() {
             .map(s => s.trim())
             .filter(s => s.length > 0)
 
-        const { error: updateError } = await supabase
-            .from('students')
+        const { error: updateError } = await (supabase
+            .from('students') as any)
             .update({
                 name: name.trim(),
                 grade,
