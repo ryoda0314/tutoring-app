@@ -221,7 +221,7 @@ export default function LoginPage() {
                                     htmlFor="name"
                                     className="block text-sm font-medium text-ink-light mb-2"
                                 >
-                                    お名前
+                                    {role === 'teacher' ? '先生のお名前' : '保護者のお名前'}
                                 </label>
                                 <input
                                     id="name"
