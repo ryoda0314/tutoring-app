@@ -19,7 +19,7 @@ export default async function TeacherLayout({
         .from('profiles')
         .select('role, name')
         .eq('id', user.id)
-        .single()
+        .single() as { data: { role: string; name: string } | null }
 
     if (!profile || profile.role !== 'teacher') {
         redirect('/parent/home')

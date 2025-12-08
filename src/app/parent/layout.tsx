@@ -19,7 +19,7 @@ export default async function ParentLayout({
         .from('profiles')
         .select('role, name, student_id')
         .eq('id', user.id)
-        .single()
+        .single() as { data: { role: string; name: string; student_id: string | null } | null }
 
     if (!profile || profile.role !== 'parent') {
         redirect('/teacher/dashboard')
@@ -32,7 +32,7 @@ export default async function ParentLayout({
             .from('students')
             .select('name')
             .eq('id', profile.student_id)
-            .single()
+            .single() as { data: { name: string } | null }
         studentName = student?.name
     }
 

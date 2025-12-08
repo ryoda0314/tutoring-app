@@ -35,7 +35,7 @@ export default async function ParentHome() {
         .from('profiles')
         .select('student_id')
         .eq('id', user.id)
-        .single()
+        .single() as { data: { student_id: string | null } | null }
 
     // If not linked to a student, redirect to setup
     if (!profile?.student_id) {
