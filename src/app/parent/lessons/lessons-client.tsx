@@ -57,7 +57,7 @@ export function LessonsClient({ upcomingLessons: initialUpcoming, pastLessons }:
                 .update({
                     cancellation_requested_at: new Date().toISOString(),
                     cancellation_reason: cancelReason || null,
-                })
+                } as any)
                 .eq('id', selectedLesson.id)
 
             if (updateError) throw updateError
@@ -113,8 +113,8 @@ export function LessonsClient({ upcomingLessons: initialUpcoming, pastLessons }:
                                     <div
                                         key={lesson.id}
                                         className={`p-3 rounded-lg border timeline-marker ${cancellationStatus === 'pending'
-                                                ? 'bg-accent-subtle/30 border-accent-subtle'
-                                                : 'bg-sage-subtle/30 border-sage-subtle'
+                                            ? 'bg-accent-subtle/30 border-accent-subtle'
+                                            : 'bg-sage-subtle/30 border-sage-subtle'
                                             }`}
                                     >
                                         <div className="flex items-center justify-between mb-2">
