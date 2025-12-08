@@ -1,0 +1,177 @@
+﻿src/app/auth/callback/route.ts(24,30): error TS2339: Property 'role' does not exist on type 'never'.
+src/app/auth/callback/route.ts(26,37): error TS2339: Property 'role' does not exist on type 'never'.
+src/app/login/page.tsx(52,29): error TS2339: Property 'role' does not exist on type 'never'.
+src/app/page.tsx(19,16): error TS2339: Property 'role' does not exist on type 'never'.
+src/app/parent/home/page.tsx(31,19): error TS2339: Property 'student_id' does not exist on type 'never'.
+src/app/parent/home/page.tsx(41,31): error TS2339: Property 'student_id' does not exist on type 'never'.
+src/app/parent/home/page.tsx(92,40): error TS2339: Property 'total_minutes' does not exist on type 'never'.
+src/app/parent/home/page.tsx(96,51): error TS2339: Property 'expires_at' does not exist on type 'never'.
+src/app/parent/home/page.tsx(126,61): error TS2339: Property 'date' does not exist on type 'never'.
+src/app/parent/home/page.tsx(129,45): error TS2339: Property 'start_time' does not exist on type 'never'.
+src/app/parent/home/page.tsx(129,83): error TS2339: Property 'end_time' does not exist on type 'never'.
+src/app/parent/home/page.tsx(130,45): error TS2339: Property 'hours' does not exist on type 'never'.
+src/app/parent/home/page.tsx(130,70): error TS2339: Property 'hours' does not exist on type 'never'.
+src/app/parent/home/page.tsx(210,50): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/parent/home/page.tsx(215,70): error TS2339: Property 'date' does not exist on type 'never'.
+src/app/parent/home/page.tsx(217,78): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/parent/home/page.tsx(220,50): error TS2339: Property 'start_time' does not exist on type 'never'.
+src/app/parent/home/page.tsx(220,85): error TS2339: Property 'end_time' does not exist on type 'never'.
+src/app/parent/home/page.tsx(221,50): error TS2339: Property 'location' does not exist on type 'never'.
+src/app/parent/home/page.tsx(221,76): error TS2339: Property 'location' does not exist on type 'never'.
+src/app/parent/home/page.tsx(252,49): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/parent/home/page.tsx(257,69): error TS2339: Property 'date' does not exist on type 'never'.
+src/app/parent/home/page.tsx(259,75): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/parent/home/page.tsx(262,49): error TS2339: Property 'hours' does not exist on type 'never'.
+src/app/parent/home/page.tsx(264,45): error TS2339: Property 'homework' does not exist on type 'never'.
+src/app/parent/home/page.tsx(266,56): error TS2339: Property 'homework' does not exist on type 'never'.
+src/app/parent/layout.tsx(24,29): error TS2339: Property 'role' does not exist on type 'never'.
+src/app/parent/layout.tsx(30,17): error TS2339: Property 'student_id' does not exist on type 'never'.
+src/app/parent/layout.tsx(34,31): error TS2339: Property 'student_id' does not exist on type 'never'.
+src/app/parent/layout.tsx(36,32): error TS2339: Property 'name' does not exist on type 'never'.
+src/app/parent/layout.tsx(40,47): error TS2339: Property 'name' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(30,19): error TS2339: Property 'student_id' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(44,35): error TS2339: Property 'student_id' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(47,52): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(48,48): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(67,49): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(72,69): error TS2339: Property 'date' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(74,75): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(79,53): error TS2339: Property 'start_time' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(79,87): error TS2339: Property 'end_time' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(81,55): error TS2339: Property 'hours' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(103,49): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(108,69): error TS2339: Property 'date' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(110,75): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(113,55): error TS2339: Property 'hours' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(115,71): error TS2339: Property 'amount' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(115,94): error TS2339: Property 'transport_fee' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(119,45): error TS2339: Property 'homework' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(122,85): error TS2339: Property 'homework' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(127,45): error TS2339: Property 'memo' does not exist on type 'never'.
+src/app/parent/lessons/page.tsx(130,91): error TS2339: Property 'memo' does not exist on type 'never'.
+src/app/parent/makeup/page.tsx(25,19): error TS2339: Property 'student_id' does not exist on type 'never'.
+src/app/parent/makeup/page.tsx(39,35): error TS2339: Property 'student_id' does not exist on type 'never'.
+src/app/parent/makeup/page.tsx(45,25): error TS2339: Property 'expires_at' does not exist on type 'never'.
+src/app/parent/makeup/page.tsx(48,67): error TS2339: Property 'total_minutes' does not exist on type 'never'.
+src/app/parent/makeup/page.tsx(49,49): error TS2339: Property 'expires_at' does not exist on type 'never'.
+src/app/parent/makeup/page.tsx(94,67): error TS2339: Property 'expires_at' does not exist on type 'never'.
+src/app/parent/makeup/page.tsx(97,45): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/parent/makeup/page.tsx(104,70): error TS2339: Property 'total_minutes' does not exist on type 'never'.
+src/app/parent/makeup/page.tsx(110,76): error TS2339: Property 'expires_at' does not exist on type 'never'.
+src/app/parent/makeup/page.tsx(117,117): error TS2339: Property 'expires_at' does not exist on type 'never'.
+src/app/parent/messages/messages-client.tsx(90,41): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "planned" | "exact" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "messages", never, "POST">', gave the following error.
+    Argument of type '{ student_id: string; sender_type: string; body: string; message_type: MessageType; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "planned" | "exact" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "messages", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'student_id' does not exist in type 'never[]'.
+src/app/parent/messages/messages-client.tsx(164,73): error TS2367: This comparison appears to be unintentional because the types '"teacher"' and '"parent"' have no overlap.
+src/app/parent/messages/page.tsx(19,19): error TS2339: Property 'student_id' does not exist on type 'never'.
+src/app/parent/messages/page.tsx(29,53): error TS2339: Property 'student_id' does not exist on type 'never'.
+src/app/parent/schedule/page.tsx(19,19): error TS2339: Property 'student_id' does not exist on type 'never'.
+src/app/parent/schedule/page.tsx(29,53): error TS2339: Property 'student_id' does not exist on type 'never'.
+src/app/teacher/calendar/calendar-client.tsx(113,14): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "planned" | "exact" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "lessons", never, "POST">', gave the following error.
+    Argument of type '{ student_id: string; date: string; start_time: string; end_time: string; hours: number; amount: number; transport_fee: number; status: string; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "planned" | "exact" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "lessons", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'student_id' does not exist in type 'never[]'.
+src/app/teacher/calendar/calendar-client.tsx(127,21): error TS2345: Argument of type '{ status: string; }' is not assignable to parameter of type 'never'.
+src/app/teacher/dashboard/page.tsx(70,40): error TS2339: Property 'amount' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(70,63): error TS2339: Property 'transport_fee' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(91,40): error TS2339: Property 'total_minutes' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(192,53): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(193,74): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(198,58): error TS2339: Property 'student' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(200,79): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(203,69): error TS2339: Property 'date' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(205,53): error TS2339: Property 'start_time' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(205,87): error TS2339: Property 'end_time' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(206,53): error TS2339: Property 'hours' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(206,74): error TS2339: Property 'hours' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(242,54): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(247,59): error TS2339: Property 'student' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(249,82): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(252,70): error TS2339: Property 'date' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(254,54): error TS2339: Property 'start_time' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(254,89): error TS2339: Property 'end_time' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(255,54): error TS2339: Property 'location' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(255,80): error TS2339: Property 'location' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(257,50): error TS2339: Property 'memo' does not exist on type 'never'.
+src/app/teacher/dashboard/page.tsx(258,101): error TS2339: Property 'memo' does not exist on type 'never'.
+src/app/teacher/layout.tsx(24,29): error TS2339: Property 'role' does not exist on type 'never'.
+src/app/teacher/layout.tsx(29,48): error TS2339: Property 'name' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/lesson-edit-form.tsx(54,25): error TS2345: Argument of type '{ status: "done" | "planned" | "cancelled"; memo: string | null; homework: string | null; }' is not assignable to parameter of type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(43,28): error TS2339: Property 'student' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(44,30): error TS2339: Property 'amount' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(44,53): error TS2339: Property 'transport_fee' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(58,49): error TS2339: Property 'date' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(61,51): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(90,45): error TS2339: Property 'start_time' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(90,79): error TS2339: Property 'end_time' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(92,79): error TS2339: Property 'hours' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(101,63): error TS2339: Property 'amount' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(102,45): error TS2339: Property 'transport_fee' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(102,93): error TS2339: Property 'transport_fee' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(113,39): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(114,37): error TS2339: Property 'memo' does not exist on type 'never'.
+src/app/teacher/lessons/[id]/page.tsx(115,41): error TS2339: Property 'homework' does not exist on type 'never'.
+src/app/teacher/makeup/page.tsx(40,34): error TS2339: Property 'student_id' does not exist on type 'never'.
+src/app/teacher/makeup/page.tsx(43,33): error TS2339: Property 'student' does not exist on type 'never'.
+src/app/teacher/makeup/page.tsx(49,9): error TS2531: Object is possibly 'null'.
+src/app/teacher/makeup/page.tsx(50,47): error TS2339: Property 'total_minutes' does not exist on type 'never'.
+src/app/teacher/makeup/page.tsx(51,66): error TS2339: Property 'expires_at' does not exist on type 'never'.
+src/app/teacher/makeup/page.tsx(52,55): error TS2339: Property 'expires_at' does not exist on type 'never'.
+src/app/teacher/messages/messages-client.tsx(116,41): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "planned" | "exact" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "messages", never, "POST">', gave the following error.
+    Argument of type '{ student_id: string; sender_type: string; body: string; message_type: MessageType; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "planned" | "exact" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "messages", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'student_id' does not exist in type 'never[]'.
+src/app/teacher/messages/messages-client.tsx(131,21): error TS2345: Argument of type '{ is_pinned: boolean; }' is not assignable to parameter of type 'never'.
+src/app/teacher/schedule-requests/schedule-requests-client.tsx(99,18): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "planned" | "exact" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "lessons", never, "POST">', gave the following error.
+    Argument of type '{ student_id: string; date: string; start_time: string; end_time: string; hours: number; amount: number; transport_fee: number; status: string; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "planned" | "exact" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "lessons", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'student_id' does not exist in type 'never[]'.
+src/app/teacher/schedule-requests/schedule-requests-client.tsx(115,25): error TS2345: Argument of type '{ status: string; }' is not assignable to parameter of type 'never'.
+src/app/teacher/schedule-requests/schedule-requests-client.tsx(142,25): error TS2345: Argument of type '{ status: string; }' is not assignable to parameter of type 'never'.
+src/app/teacher/schedule-requests/schedule-requests-client.tsx(181,25): error TS2345: Argument of type '{ date: string; start_time: string; end_time: string; location: string | null; memo: string | null; status: string; requested_by: string; }' is not assignable to parameter of type 'never'.
+src/app/teacher/students/[id]/page.tsx(59,30): error TS2339: Property 'total_minutes' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(80,77): error TS2339: Property 'name' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(82,34): error TS2339: Property 'grade' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(83,34): error TS2339: Property 'school' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(83,58): error TS2339: Property 'school' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(100,53): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(147,30): error TS2339: Property 'subjects' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(147,50): error TS2339: Property 'subjects' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(151,42): error TS2339: Property 'subjects' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(163,30): error TS2339: Property 'contact' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(166,70): error TS2339: Property 'contact' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(170,30): error TS2339: Property 'note' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(173,90): error TS2339: Property 'note' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(191,45): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(195,62): error TS2339: Property 'total_minutes' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(198,68): error TS2339: Property 'expires_at' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(221,49): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(222,70): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(227,69): error TS2339: Property 'date' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(230,53): error TS2339: Property 'start_time' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(230,87): error TS2339: Property 'end_time' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(232,69): error TS2339: Property 'amount' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(232,92): error TS2339: Property 'transport_fee' does not exist on type 'never'.
+src/app/teacher/students/[id]/page.tsx(236,75): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/teacher/students/new/page.tsx(66,18): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "planned" | "exact" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "students", never, "POST">', gave the following error.
+    Argument of type '{ teacher_id: string; name: string; grade: string; school: string | null; subjects: string[]; contact: string | null; note: string | null; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "planned" | "exact" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "students", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'teacher_id' does not exist in type 'never[]'.
+src/app/teacher/students/page.tsx(43,43): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/teacher/students/page.tsx(53,43): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/teacher/students/page.tsx(57,73): error TS2339: Property 'total_minutes' does not exist on type 'never'.
+src/app/teacher/students/page.tsx(60,17): error TS2698: Spread types may only be created from object types.
+src/components/schedule/natural-input.tsx(100,18): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: never, options?: { count?: "planned" | "exact" | "estimated" | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "schedule_requests", never, "POST">', gave the following error.
+    Argument of type '{ student_id: string; requested_by: string; date: string; start_time: string; end_time: string; location: string | null; memo: string | null; }' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(values: never[], options?: { count?: "planned" | "exact" | "estimated" | undefined; defaultToNull?: boolean | undefined; } | undefined): PostgrestFilterBuilder<{ PostgrestVersion: "12"; }, never, never, null, "schedule_requests", never, "POST">', gave the following error.
+    Object literal may only specify known properties, and 'student_id' does not exist in type 'never[]'.
+src/lib/supabase/middleware.ts(62,32): error TS2339: Property 'role' does not exist on type 'never'.
+src/lib/supabase/middleware.ts(63,41): error TS2339: Property 'role' does not exist on type 'never'.
+src/lib/supabase/middleware.ts(88,39): error TS2339: Property 'role' does not exist on type 'never'.
