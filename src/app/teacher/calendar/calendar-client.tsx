@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { ScheduleStatusBadge, LessonStatusBadge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/loading'
 import type { Lesson, ScheduleRequest, MakeupCredit, LessonStatus, ScheduleRequestStatus } from '@/types/database'
+import { HOURLY_RATE } from '@/lib/pricing'
 import {
     ChevronLeft,
     ChevronRight,
@@ -38,6 +39,7 @@ export function TeacherCalendarClient() {
     const [lessons, setLessons] = useState<LessonWithStudent[]>([])
     const [requests, setRequests] = useState<ScheduleRequestWithStudent[]>([])
     const [loading, setLoading] = useState(true)
+    const [hourlyRate, setHourlyRate] = useState<number>(HOURLY_RATE)
 
     // Fetch data for current month
     useEffect(() => {
@@ -80,6 +82,21 @@ export function TeacherCalendarClient() {
         }
 
         fetchData()
+        // Fetch teacher settings for hourly rate
+        const fetchSettings = async () => {
+            const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+            const { data: settings } = await (supabase
+                .from('teacher_settings') as any)
+                .select('lesson_price')
+                .eq('teacher_id', user.id)
+                .single()
+            if (settings?.lesson_price) {
+                setHourlyRate(settings.lesson_price)
+            }
+        }
+        fetchSettings()
     }, [currentMonth])
 
     // Get days in current month
@@ -164,7 +181,7 @@ export function TeacherCalendarClient() {
                 start_time: request.start_time,
                 end_time: request.end_time,
                 hours,
-                amount: isMakeupRequest ? 0 : Math.round(hours * 3500),
+                amount: isMakeupRequest ? 0 : Math.round(hours * hourlyRate),
                 transport_fee: request.location === '日暮里' ? 900 : request.location === '蓮沼' ? 1500 : 0,
                 status: 'planned',
             })

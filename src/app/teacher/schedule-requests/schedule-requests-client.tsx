@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input, Textarea } from '@/components/ui/input'
 import { ScheduleStatusBadge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/loading'
-import { calculateLessonAmount, getTransportFee, calculateHours } from '@/lib/pricing'
+import { calculateLessonAmount, getTransportFee, calculateHours, HOURLY_RATE } from '@/lib/pricing'
 import type { ScheduleRequest, ScheduleRequestStatus, MakeupCredit } from '@/types/database'
 import {
     Check,
@@ -48,6 +48,9 @@ export function ScheduleRequestsClient() {
     const [proposeLocation, setProposeLocation] = useState('')
     const [proposeMemo, setProposeMemo] = useState('')
 
+    // Hourly rate from teacher settings
+    const [hourlyRate, setHourlyRate] = useState<number>(HOURLY_RATE)
+
     // Fetch requests
     const fetchRequests = async () => {
         setLoading(true)
@@ -78,6 +81,21 @@ export function ScheduleRequestsClient() {
 
     useEffect(() => {
         fetchRequests()
+        // Fetch teacher settings for hourly rate
+        const fetchSettings = async () => {
+            const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return
+            const { data: settings } = await (supabase
+                .from('teacher_settings') as any)
+                .select('lesson_price')
+                .eq('teacher_id', user.id)
+                .single()
+            if (settings?.lesson_price) {
+                setHourlyRate(settings.lesson_price)
+            }
+        }
+        fetchSettings()
     }, [filter])
 
     // Approve request - create lesson
@@ -125,7 +143,7 @@ export function ScheduleRequestsClient() {
                 }
             }
 
-            const amount = isMakeupRequest ? 0 : calculateLessonAmount(hours)
+            const amount = isMakeupRequest ? 0 : calculateLessonAmount(hours, hourlyRate)
             const transportFee = getTransportFee(request.location)
 
             // Create lesson

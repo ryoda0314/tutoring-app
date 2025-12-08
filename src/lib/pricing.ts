@@ -12,10 +12,11 @@ export const TRANSPORT_FEES: Record<string, number> = {
 /**
  * Calculate lesson amount based on hours
  * @param hours - Number of hours (e.g., 2 or 3)
+ * @param hourlyRate - Hourly rate in JPY (from teacher settings)
  * @returns Lesson fee in JPY
  */
-export function calculateLessonAmount(hours: number): number {
-    return Math.round(hours * HOURLY_RATE)
+export function calculateLessonAmount(hours: number, hourlyRate: number = HOURLY_RATE): number {
+    return Math.round(hours * hourlyRate)
 }
 
 /**
