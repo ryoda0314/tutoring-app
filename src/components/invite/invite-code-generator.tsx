@@ -43,8 +43,8 @@ export function InviteCodeGenerator({ studentId, studentName }: InviteCodeGenera
         const expiresAt = new Date()
         expiresAt.setDate(expiresAt.getDate() + 7) // 7 days expiry
 
-        const { error: insertError } = await supabase
-            .from('student_invites')
+        const { error: insertError } = await (supabase
+            .from('student_invites') as any)
             .insert({
                 student_id: studentId,
                 invite_code: code,

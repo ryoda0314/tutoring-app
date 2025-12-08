@@ -12,7 +12,7 @@ import {
     calculateBillingInfo,
     type Lesson,
 } from '@/lib/billing'
-import type { MakeupCredit } from '@/types/database'
+import type { MakeupCredit, LessonStatus, ScheduleRequestStatus } from '@/types/database'
 import {
     CalendarDays,
     CalendarClock,
@@ -235,7 +235,7 @@ export default async function ParentHome() {
                                         <span className="text-sm font-medium text-ink">
                                             {format(new Date(request.date), 'M/d（E）', { locale: ja })}
                                         </span>
-                                        <ScheduleStatusBadge status={request.status} />
+                                        <ScheduleStatusBadge status={(request.status || 'requested') as ScheduleRequestStatus} />
                                     </div>
                                     <p className="text-sm text-ink-light">
                                         {request.start_time.slice(0, 5)} - {request.end_time.slice(0, 5)}
@@ -277,7 +277,7 @@ export default async function ParentHome() {
                                         <span className="text-sm font-medium text-ink">
                                             {format(new Date(lesson.date), 'M/d（E）', { locale: ja })}
                                         </span>
-                                        <LessonStatusBadge status={lesson.status} />
+                                        <LessonStatusBadge status={(lesson.status || 'planned') as LessonStatus} />
                                     </div>
                                     <p className="text-sm text-ink-light">
                                         {lesson.hours}時間レッスン

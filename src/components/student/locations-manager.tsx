@@ -28,8 +28,8 @@ export function StudentLocationsManager({ studentId }: StudentLocationsManagerPr
     useEffect(() => {
         const fetchLocations = async () => {
             const supabase = createClient()
-            const { data } = await supabase
-                .from('student_locations')
+            const { data } = await (supabase
+                .from('student_locations') as any)
                 .select('*')
                 .eq('student_id', studentId)
                 .order('name')
@@ -44,8 +44,8 @@ export function StudentLocationsManager({ studentId }: StudentLocationsManagerPr
         if (!newName.trim()) return
 
         const supabase = createClient()
-        const { data, error } = await supabase
-            .from('student_locations')
+        const { data, error } = await (supabase
+            .from('student_locations') as any)
             .insert({
                 student_id: studentId,
                 name: newName.trim(),
@@ -63,8 +63,8 @@ export function StudentLocationsManager({ studentId }: StudentLocationsManagerPr
 
     const handleDelete = async (id: string) => {
         const supabase = createClient()
-        await supabase
-            .from('student_locations')
+        await (supabase
+            .from('student_locations') as any)
             .delete()
             .eq('id', id)
 
@@ -105,7 +105,7 @@ export function StudentLocationsManager({ studentId }: StudentLocationsManagerPr
                                         {loc.name}
                                     </span>
                                     <span className="text-sm text-sage font-medium">
-                                        ¥{loc.transportation_fee.toLocaleString()}
+                                        ¥{(loc.transportation_fee || 0).toLocaleString()}
                                     </span>
                                     <button
                                         onClick={() => handleDelete(loc.id)}

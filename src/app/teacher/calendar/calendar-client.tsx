@@ -11,7 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ScheduleStatusBadge, LessonStatusBadge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/loading'
-import type { Lesson, ScheduleRequest, MakeupCredit } from '@/types/database'
+import type { Lesson, ScheduleRequest, MakeupCredit, LessonStatus, ScheduleRequestStatus } from '@/types/database'
 import {
     ChevronLeft,
     ChevronRight,
@@ -334,7 +334,7 @@ export function TeacherCalendarClient() {
                                                         <User size={14} />
                                                         {lesson.student?.name}
                                                     </span>
-                                                    <LessonStatusBadge status={lesson.status} />
+                                                    <LessonStatusBadge status={(lesson.status || 'planned') as LessonStatus} />
                                                 </div>
                                                 <div className="flex items-center gap-3 text-sm text-ink-light">
                                                     <span className="flex items-center gap-1">
@@ -356,7 +356,7 @@ export function TeacherCalendarClient() {
                                                         <User size={14} />
                                                         {request.student?.name}
                                                     </span>
-                                                    <ScheduleStatusBadge status={request.status} />
+                                                    <ScheduleStatusBadge status={(request.status || 'requested') as ScheduleRequestStatus} />
                                                 </div>
                                                 <div className="flex items-center gap-3 text-sm text-ink-light mb-3">
                                                     <span className="flex items-center gap-1">

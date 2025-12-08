@@ -28,8 +28,8 @@ export function ParentSetupFlow() {
         }
 
         // Find the invite by code
-        const { data: invite, error: findError } = await supabase
-            .from('student_invites')
+        const { data: invite, error: findError } = await (supabase
+            .from('student_invites') as any)
             .select('*, teacher:profiles!created_by(id, name)')
             .eq('invite_code', code.toUpperCase().trim())
             .is('used_by', null)
@@ -43,8 +43,8 @@ export function ParentSetupFlow() {
         }
 
         // Mark invite as used
-        const { error: updateError } = await supabase
-            .from('student_invites')
+        const { error: updateError } = await (supabase
+            .from('student_invites') as any)
             .update({
                 used_by: user.id,
                 used_at: new Date().toISOString(),

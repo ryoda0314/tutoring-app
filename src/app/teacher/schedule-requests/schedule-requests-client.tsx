@@ -12,7 +12,7 @@ import { Input, Textarea } from '@/components/ui/input'
 import { ScheduleStatusBadge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/loading'
 import { calculateLessonAmount, getTransportFee, calculateHours } from '@/lib/pricing'
-import type { ScheduleRequest, ScheduleRequestStatus } from '@/types/database'
+import type { ScheduleRequest, ScheduleRequestStatus, MakeupCredit } from '@/types/database'
 import {
     Check,
     X,
@@ -98,13 +98,13 @@ export function ScheduleRequestsClient() {
             // If makeup request, deduct from makeup credits
             if (isMakeupRequest) {
                 // Get available makeup credits (oldest first)
-                const { data: credits } = await supabase
-                    .from('makeup_credits')
+                const { data: credits } = await (supabase
+                    .from('makeup_credits') as any)
                     .select('*')
                     .eq('student_id', request.student_id)
                     .gt('total_minutes', 0)
                     .gt('expires_at', new Date().toISOString())
-                    .order('expires_at', { ascending: true })
+                    .order('expires_at', { ascending: true }) as { data: MakeupCredit[] | null }
 
                 if (credits && credits.length > 0) {
                     let remainingToDeduct = totalMinutes
@@ -115,8 +115,8 @@ export function ScheduleRequestsClient() {
                         const deductAmount = Math.min(credit.total_minutes, remainingToDeduct)
                         const newTotal = credit.total_minutes - deductAmount
 
-                        await supabase
-                            .from('makeup_credits')
+                        await (supabase
+                            .from('makeup_credits') as any)
                             .update({ total_minutes: newTotal })
                             .eq('id', credit.id)
 
@@ -129,8 +129,8 @@ export function ScheduleRequestsClient() {
             const transportFee = getTransportFee(request.location)
 
             // Create lesson
-            const { error: lessonError } = await supabase
-                .from('lessons')
+            const { error: lessonError } = await (supabase
+                .from('lessons') as any)
                 .insert({
                     student_id: request.student_id,
                     date: request.date,
@@ -145,8 +145,8 @@ export function ScheduleRequestsClient() {
             if (lessonError) throw lessonError
 
             // Update request status
-            const { error: updateError } = await supabase
-                .from('schedule_requests')
+            const { error: updateError } = await (supabase
+                .from('schedule_requests') as any)
                 .update({ status: 'confirmed' })
                 .eq('id', request.id)
 
@@ -172,8 +172,8 @@ export function ScheduleRequestsClient() {
         const supabase = createClient()
 
         try {
-            const { error: updateError } = await supabase
-                .from('schedule_requests')
+            const { error: updateError } = await (supabase
+                .from('schedule_requests') as any)
                 .update({ status: 'rejected' })
                 .eq('id', request.id)
 
@@ -211,8 +211,8 @@ export function ScheduleRequestsClient() {
 
         try {
             // Update the existing request
-            const { error: updateError } = await supabase
-                .from('schedule_requests')
+            const { error: updateError } = await (supabase
+                .from('schedule_requests') as any)
                 .update({
                     date: proposeDate,
                     start_time: proposeStartTime + ':00',
@@ -314,7 +314,7 @@ export function ScheduleRequestsClient() {
                                                 {request.student?.name || '?'}
                                             </span>
                                         </div>
-                                        <ScheduleStatusBadge status={request.status} />
+                                        <ScheduleStatusBadge status={(request.status || 'requested') as ScheduleRequestStatus} />
                                     </div>
                                     <span className="text-xs text-ink-faint">
                                         {request.requested_by === 'parent' ? '保護者より' : '先生より'}

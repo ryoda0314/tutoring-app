@@ -160,8 +160,8 @@ export function LessonEditForm({
                                     onClick={async () => {
                                         setLoading(true)
                                         const supabase = createClient()
-                                        await supabase
-                                            .from('lessons')
+                                        await (supabase
+                                            .from('lessons') as any)
                                             .update({
                                                 cancellation_requested_at: null,
                                                 cancellation_reason: null,

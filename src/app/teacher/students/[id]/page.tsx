@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { LessonStatusBadge } from '@/components/ui/badge'
 import { formatMakeupTime, formatExpirationStatus } from '@/lib/makeup'
 import { formatCurrency } from '@/lib/pricing'
+import type { LessonStatus } from '@/types/database'
 import {
     ArrowLeft,
     GraduationCap,
@@ -237,7 +238,7 @@ export default async function TeacherStudentDetailPage({
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <LessonStatusBadge status={lesson.status} />
+                                        <LessonStatusBadge status={(lesson.status || 'planned') as LessonStatus} />
                                         <ChevronRight size={16} className="text-ink-faint" />
                                     </div>
                                 </Link>

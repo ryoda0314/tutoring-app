@@ -150,8 +150,8 @@ export function NaturalScheduleInput({ studentId, contextMonth, onSuccess }: Nat
                 }]
 
             for (const schedule of schedulesToSubmit) {
-                const { error: insertError } = await supabase
-                    .from('schedule_requests')
+                const { error: insertError } = await (supabase
+                    .from('schedule_requests') as any)
                     .insert({
                         student_id: studentId,
                         requested_by: 'parent',
@@ -197,7 +197,7 @@ export function NaturalScheduleInput({ studentId, contextMonth, onSuccess }: Nat
         { value: '', label: '場所を選択' },
         ...locations.map(l => ({
             value: l.id,
-            label: `${l.name} (交通費: ¥${l.transportation_fee.toLocaleString()})`,
+            label: `${l.name} (交通費: ¥${(l.transportation_fee || 0).toLocaleString()})`,
         }))
     ]
 
@@ -290,7 +290,7 @@ export function NaturalScheduleInput({ studentId, contextMonth, onSuccess }: Nat
                         {selectedLoc && (
                             <div className="flex items-center gap-2 text-sm text-ochre">
                                 <Train size={14} />
-                                交通費: ¥{selectedLoc.transportation_fee.toLocaleString()}
+                                交通費: ¥{(selectedLoc.transportation_fee || 0).toLocaleString()}
                             </div>
                         )}
                     </div>
@@ -418,7 +418,7 @@ export function NaturalScheduleInput({ studentId, contextMonth, onSuccess }: Nat
                             {selectedLoc && (
                                 <div className="flex items-center gap-2 text-sm text-ochre">
                                     <Train size={14} />
-                                    交通費: ¥{selectedLoc.transportation_fee.toLocaleString()}
+                                    交通費: ¥{(selectedLoc.transportation_fee || 0).toLocaleString()}
                                 </div>
                             )}
                         </div>
@@ -583,7 +583,7 @@ export function NaturalScheduleInput({ studentId, contextMonth, onSuccess }: Nat
                                 {getSelectedLocation() && (
                                     <div className="flex items-center gap-2 text-sm text-ochre">
                                         <Train size={14} />
-                                        交通費: ¥{getSelectedLocation()!.transportation_fee.toLocaleString()}
+                                        交通費: ¥{(getSelectedLocation()?.transportation_fee || 0).toLocaleString()}
                                     </div>
                                 )}
                             </div>

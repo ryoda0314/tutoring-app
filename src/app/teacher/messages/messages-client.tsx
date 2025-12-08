@@ -103,7 +103,7 @@ export function TeacherMessagesClient() {
         setSending(true)
         const supabase = createClient()
 
-        await supabase.from('messages').insert({
+        await (supabase.from('messages') as any).insert({
             student_id: selectedStudentId,
             sender_type: 'teacher',
             body: newMessage.trim(),
@@ -116,8 +116,8 @@ export function TeacherMessagesClient() {
 
     const handlePin = async (messageId: string, isPinned: boolean) => {
         const supabase = createClient()
-        await supabase
-            .from('messages')
+        await (supabase
+            .from('messages') as any)
             .update({ is_pinned: !isPinned })
             .eq('id', messageId)
 
@@ -242,7 +242,7 @@ export function TeacherMessagesClient() {
                                                             } ${message.is_pinned ? 'bg-ochre-subtle/30' : ''}`}
                                                     >
                                                         <td className="p-2 text-xs text-ink-faint whitespace-nowrap">
-                                                            {format(new Date(message.created_at), 'M/d H:mm', { locale: ja })}
+                                                            {format(new Date(message.created_at || new Date()), 'M/d H:mm', { locale: ja })}
                                                         </td>
                                                         <td className="p-2">
                                                             <span className={`text-xs px-1.5 py-0.5 rounded ${message.sender_type === 'teacher'
@@ -263,7 +263,7 @@ export function TeacherMessagesClient() {
                                                         <td className="p-2">
                                                             {message.sender_type === 'teacher' && (
                                                                 <button
-                                                                    onClick={() => handlePin(message.id, message.is_pinned)}
+                                                                    onClick={() => handlePin(message.id, message.is_pinned ?? false)}
                                                                     className={`p-1 rounded hover:bg-paper-dark ${message.is_pinned ? 'text-ochre' : 'text-ink-faint'
                                                                         }`}
                                                                 >

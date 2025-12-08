@@ -62,8 +62,8 @@ export default function NewStudentPage() {
                 .map(s => s.trim())
                 .filter(s => s.length > 0)
 
-            const { error: insertError } = await supabase
-                .from('students')
+            const { error: insertError } = await (supabase
+                .from('students') as any)
                 .insert({
                     teacher_id: user.id,
                     name: name.trim(),

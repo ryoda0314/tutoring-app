@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button'
 import { LessonStatusBadge } from '@/components/ui/badge'
 import { formatCurrency } from '@/lib/pricing'
+import type { LessonStatus } from '@/types/database'
 import { LessonEditForm } from './lesson-edit-form'
 import {
     ArrowLeft,
@@ -58,7 +59,7 @@ export default async function TeacherLessonDetailPage({
                         {format(new Date(lesson.date), 'yyyy年M月d日（E）', { locale: ja })}
                     </p>
                 </div>
-                <LessonStatusBadge status={lesson.status} />
+                <LessonStatusBadge status={(lesson.status || 'planned') as LessonStatus} />
             </div>
 
             {/* Main info */}

@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/input'
 import { LessonStatusBadge } from '@/components/ui/badge'
 import { formatCurrency } from '@/lib/pricing'
-import type { Lesson } from '@/types/database'
+import type { Lesson, LessonStatus } from '@/types/database'
 import {
     BookOpen,
     Calendar,
@@ -127,7 +127,7 @@ export function LessonsClient({ upcomingLessons: initialUpcoming, pastLessons }:
                                                         キャンセル申請中
                                                     </span>
                                                 )}
-                                                <LessonStatusBadge status={lesson.status} />
+                                                <LessonStatusBadge status={(lesson.status || 'planned') as LessonStatus} />
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3 text-sm text-ink-light">
@@ -185,7 +185,7 @@ export function LessonsClient({ upcomingLessons: initialUpcoming, pastLessons }:
                                         <span className="font-medium text-ink">
                                             {format(new Date(lesson.date), 'M月d日（E）', { locale: ja })}
                                         </span>
-                                        <LessonStatusBadge status={lesson.status} />
+                                        <LessonStatusBadge status={(lesson.status || 'planned') as LessonStatus} />
                                     </div>
                                     <div className="flex items-center gap-3 text-sm text-ink-light mb-2">
                                         <span>{lesson.hours}時間</span>

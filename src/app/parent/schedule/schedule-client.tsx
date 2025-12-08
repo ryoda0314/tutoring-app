@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { ScheduleStatusBadge } from '@/components/ui/badge'
 import { NaturalScheduleInput } from '@/components/schedule/natural-input'
 import { Spinner } from '@/components/ui/loading'
-import type { ScheduleRequest, Lesson } from '@/types/database'
+import type { ScheduleRequest, Lesson, ScheduleRequestStatus } from '@/types/database'
 import {
     ChevronLeft,
     ChevronRight,
@@ -374,7 +374,7 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
                                                         <span className="text-sm font-medium text-ink">
                                                             日程リクエスト
                                                         </span>
-                                                        <ScheduleStatusBadge status={request.status} />
+                                                        <ScheduleStatusBadge status={(request.status || 'requested') as ScheduleRequestStatus} />
                                                     </div>
                                                     <p className="text-sm text-ink-light">
                                                         {request.start_time.slice(0, 5)} - {request.end_time.slice(0, 5)}

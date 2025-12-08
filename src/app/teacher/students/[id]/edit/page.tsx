@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { StudentEditForm } from './student-edit-form'
+import type { Student } from '@/types/database'
 import { ArrowLeft } from 'lucide-react'
 
 export default async function TeacherStudentEditPage({
@@ -14,11 +15,11 @@ export default async function TeacherStudentEditPage({
     const supabase = await createClient()
 
     // Fetch student
-    const { data: student } = await supabase
-        .from('students')
+    const { data: student } = await (supabase
+        .from('students') as any)
         .select('*')
         .eq('id', id)
-        .single()
+        .single() as { data: Student | null }
 
     if (!student) {
         notFound()

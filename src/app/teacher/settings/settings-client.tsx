@@ -73,13 +73,13 @@ export function TeacherSettingsClient() {
         }
 
         if (settings) {
-            await supabase
-                .from('teacher_settings')
+            await (supabase
+                .from('teacher_settings') as any)
                 .update(settingsData)
                 .eq('id', settings.id)
         } else {
-            const { data } = await supabase
-                .from('teacher_settings')
+            const { data } = await (supabase
+                .from('teacher_settings') as any)
                 .insert(settingsData)
                 .select()
                 .single() as { data: TeacherSettings | null }

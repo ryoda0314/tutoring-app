@@ -37,8 +37,8 @@ export function TeacherInviteGenerator() {
         const expiresAt = new Date()
         expiresAt.setDate(expiresAt.getDate() + 7)
 
-        const { error: insertError } = await supabase
-            .from('student_invites')
+        const { error: insertError } = await (supabase
+            .from('student_invites') as any)
             .insert({
                 student_id: null, // 新しいフローでは生徒IDなし
                 invite_code: code,

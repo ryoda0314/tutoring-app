@@ -46,8 +46,8 @@ export function StudentRegistrationForm({ teacherId }: StudentRegistrationFormPr
         }
 
         // Create student
-        const { data: student, error: studentError } = await supabase
-            .from('students')
+        const { data: student, error: studentError } = await (supabase
+            .from('students') as any)
             .insert({
                 teacher_id: teacherId,
                 name: studentName.trim(),
@@ -68,8 +68,8 @@ export function StudentRegistrationForm({ teacherId }: StudentRegistrationFormPr
         }
 
         // Update parent profile with student_id
-        const { error: profileError } = await supabase
-            .from('profiles')
+        const { error: profileError } = await (supabase
+            .from('profiles') as any)
             .update({ student_id: student.id })
             .eq('id', user.id)
 

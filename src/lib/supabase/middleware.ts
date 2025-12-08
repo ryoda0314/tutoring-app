@@ -53,8 +53,8 @@ export async function updateSession(request: NextRequest) {
 
     // If authenticated, check role-based access
     if (user && isProtectedRoute) {
-        const { data: profile } = await supabase
-            .from('profiles')
+        const { data: profile } = await (supabase
+            .from('profiles') as any)
             .select('role')
             .eq('id', user.id)
             .single()
@@ -78,8 +78,8 @@ export async function updateSession(request: NextRequest) {
 
     // Redirect authenticated users away from login page
     if (user && pathname === '/login') {
-        const { data: profile } = await supabase
-            .from('profiles')
+        const { data: profile } = await (supabase
+            .from('profiles') as any)
             .select('role')
             .eq('id', user.id)
             .single()

@@ -84,8 +84,8 @@ export function MakeupRequestForm({ studentId, makeupCredits }: MakeupRequestFor
         const endTime = calculateEndTime(startTime, duration)
 
         // Create schedule request with makeup flag
-        const { error: requestError } = await supabase
-            .from('schedule_requests')
+        const { error: requestError } = await (supabase
+            .from('schedule_requests') as any)
             .insert({
                 student_id: studentId,
                 requested_by: user.id,
@@ -201,8 +201,8 @@ export function MakeupRequestForm({ studentId, makeupCredits }: MakeupRequestFor
                                             disabled={opt.value > totalMakeupMinutes}
                                             onClick={() => setDuration(opt.value)}
                                             className={`py-2 px-3 rounded-lg text-sm font-medium transition-all ${duration === opt.value
-                                                    ? 'bg-ink text-paper-light'
-                                                    : 'bg-paper-dark text-ink-light hover:bg-paper-dark/70'
+                                                ? 'bg-ink text-paper-light'
+                                                : 'bg-paper-dark text-ink-light hover:bg-paper-dark/70'
                                                 } ${opt.value > totalMakeupMinutes ? 'opacity-40 cursor-not-allowed' : ''}`}
                                         >
                                             {opt.label}

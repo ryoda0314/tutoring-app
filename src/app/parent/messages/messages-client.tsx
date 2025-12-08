@@ -125,7 +125,7 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
                             <div key={message.id} className="p-2 bg-paper-light rounded">
                                 <p className="text-sm text-ink">{message.body}</p>
                                 <p className="text-xs text-ink-faint mt-1">
-                                    {format(new Date(message.created_at), 'M/d H:mm', { locale: ja })}
+                                    {format(new Date(message.created_at || new Date()), 'M/d H:mm', { locale: ja })}
                                 </p>
                             </div>
                         ))}
@@ -159,7 +159,7 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
                                         }`}
                                 >
                                     <div className="flex items-center gap-2 mb-1">
-                                        <MessageTypeBadge type={message.message_type} />
+                                        <MessageTypeBadge type={(message.message_type || '連絡事項') as MessageType} />
                                         {message.sender_type === 'teacher' && (
                                             <span className="text-xs text-ink-faint">
                                                 先生
@@ -169,7 +169,7 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
                                     <p className="text-sm whitespace-pre-wrap">{message.body}</p>
                                     <p className={`text-xs mt-2 ${message.sender_type === 'parent' ? 'text-paper-light/60' : 'text-ink-faint'
                                         }`}>
-                                        {format(new Date(message.created_at), 'M/d H:mm', { locale: ja })}
+                                        {format(new Date(message.created_at || new Date()), 'M/d H:mm', { locale: ja })}
                                     </p>
                                 </div>
                             </motion.div>

@@ -28,8 +28,8 @@ export function InviteCodeInput() {
         }
 
         // Find the invite
-        const { data: invite, error: findError } = await supabase
-            .from('student_invites')
+        const { data: invite, error: findError } = await (supabase
+            .from('student_invites') as any)
             .select('*, student:students(id, name)')
             .eq('invite_code', code.toUpperCase().trim())
             .is('used_by', null)
@@ -43,8 +43,8 @@ export function InviteCodeInput() {
         }
 
         // Update the invite as used
-        const { error: updateInviteError } = await supabase
-            .from('student_invites')
+        const { error: updateInviteError } = await (supabase
+            .from('student_invites') as any)
             .update({
                 used_by: user.id,
                 used_at: new Date().toISOString(),
@@ -58,8 +58,8 @@ export function InviteCodeInput() {
         }
 
         // Update parent profile with student_id
-        const { error: updateProfileError } = await supabase
-            .from('profiles')
+        const { error: updateProfileError } = await (supabase
+            .from('profiles') as any)
             .update({ student_id: invite.student_id })
             .eq('id', user.id)
 

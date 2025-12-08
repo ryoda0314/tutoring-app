@@ -72,8 +72,8 @@ export function StudentEditForm({ student }: StudentEditFormProps) {
         try {
             const supabase = createClient()
 
-            const { error: updateError } = await supabase
-                .from('students')
+            const { error: updateError } = await (supabase
+                .from('students') as any)
                 .update({
                     name: name.trim(),
                     grade,
@@ -145,8 +145,8 @@ export function StudentEditForm({ student }: StudentEditFormProps) {
                                 type="button"
                                 onClick={() => toggleSubject(subject)}
                                 className={`px-3 py-1.5 rounded-full text-sm transition-colors ${subjects.includes(subject)
-                                        ? 'bg-sage text-paper'
-                                        : 'bg-paper-dark text-ink-light hover:bg-paper-dark/80'
+                                    ? 'bg-sage text-paper'
+                                    : 'bg-paper-dark text-ink-light hover:bg-paper-dark/80'
                                     }`}
                             >
                                 {subject}

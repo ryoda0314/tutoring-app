@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { ScheduleStatusBadge, LessonStatusBadge } from '@/components/ui/badge'
 import { formatCurrency } from '@/lib/pricing'
 import { formatMakeupTime } from '@/lib/makeup'
+import type { LessonStatus, ScheduleRequestStatus } from '@/types/database'
 import {
     CalendarDays,
     CalendarClock,
@@ -261,7 +262,7 @@ export default async function TeacherDashboard() {
                                             <span className="font-medium text-ink">
                                                 {(lesson.student as { name: string })?.name}
                                             </span>
-                                            <LessonStatusBadge status={lesson.status} />
+                                            <LessonStatusBadge status={(lesson.status || 'planned') as LessonStatus} />
                                         </div>
                                         <div className="text-sm text-ink-light">
                                             {format(new Date(lesson.date), 'M/d（E）', { locale: ja })}
@@ -310,7 +311,7 @@ export default async function TeacherDashboard() {
                                             <span className="font-medium text-ink">
                                                 {(request.student as { name: string })?.name}
                                             </span>
-                                            <ScheduleStatusBadge status={request.status} />
+                                            <ScheduleStatusBadge status={(request.status || 'requested') as ScheduleRequestStatus} />
                                         </div>
                                         <div className="text-sm text-ink-light mb-2">
                                             {format(new Date(request.date), 'M/d（E）', { locale: ja })}
