@@ -111,7 +111,7 @@ export default function LoginPage() {
                         id: data.user.id,
                         role: role,
                         name: name.trim(),
-                    })
+                    } as any)
 
                 if (profileError) {
                     console.error('Profile creation error:', profileError)
