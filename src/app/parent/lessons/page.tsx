@@ -28,14 +28,14 @@ export default async function ParentLessonsPage() {
     }
 
     // Fetch lessons
-    const { data: lessons } = await supabase
-        .from('lessons')
+    const { data: lessons } = await (supabase
+        .from('lessons') as any)
         .select('*')
         .eq('student_id', profile.student_id)
         .order('date', { ascending: false })
 
-    const upcomingLessons = (lessons?.filter(l => l.status === 'planned') || []) as Lesson[]
-    const pastLessons = (lessons?.filter(l => l.status !== 'planned') || []) as Lesson[]
+    const upcomingLessons = (lessons?.filter((l: Lesson) => l.status === 'planned') || []) as Lesson[]
+    const pastLessons = (lessons?.filter((l: Lesson) => l.status !== 'planned') || []) as Lesson[]
 
     return (
         <LessonsClient
