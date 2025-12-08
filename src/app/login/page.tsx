@@ -119,9 +119,11 @@ export default function LoginPage() {
                     return
                 }
 
-                setSuccess('アカウントが作成されました！ログインしてください。')
+                setSuccess('確認メールを送信しました！メールのリンクをクリックしてアカウントを有効化してください。')
                 setAuthMode('login')
                 setPassword('')
+                setEmail('')
+                setName('')
             }
         } catch {
             setError('登録中にエラーが発生しました')
