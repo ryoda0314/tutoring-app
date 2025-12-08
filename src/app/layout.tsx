@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "家庭教師管理アプリ",
+  title: "Tutorin",
   description: "レッスン・日程・連絡を一元管理",
 };
 

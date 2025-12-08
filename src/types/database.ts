@@ -56,6 +56,9 @@ export interface Lesson {
     is_makeup: boolean
     memo: string | null
     homework: string | null
+    cancellation_requested_at: string | null
+    cancellation_reason: string | null
+    cancellation_processed_at: string | null
     created_at: string
 }
 

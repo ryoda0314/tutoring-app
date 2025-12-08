@@ -6,9 +6,10 @@ import { createClient } from '@/lib/supabase/client'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea, Select } from '@/components/ui/input'
-import { addMonths } from 'date-fns'
+import { addMonths, format } from 'date-fns'
+import { ja } from 'date-fns/locale'
 import type { LessonStatus } from '@/types/database'
-import { Save, BookOpen, FileText, AlertCircle, Check, AlertTriangle, Ban } from 'lucide-react'
+import { Save, BookOpen, FileText, AlertCircle, Check, AlertTriangle, Ban, X } from 'lucide-react'
 
 interface LessonEditFormProps {
     lessonId: string
@@ -16,10 +17,12 @@ interface LessonEditFormProps {
     lessonDate: string
     lessonHours: number
     lessonAmount: number
-    isMakeup: boolean  // Whether this is a makeup lesson
+    isMakeup: boolean
     initialStatus: LessonStatus
     initialMemo: string
     initialHomework: string
+    cancellationRequestedAt: string | null
+    cancellationReason: string | null
 }
 
 const statusOptions = [
@@ -38,6 +41,8 @@ export function LessonEditForm({
     initialStatus,
     initialMemo,
     initialHomework,
+    cancellationRequestedAt,
+    cancellationReason,
 }: LessonEditFormProps) {
     const router = useRouter()
     const [status, setStatus] = useState(initialStatus)
@@ -47,6 +52,7 @@ export function LessonEditForm({
     const [error, setError] = useState<string | null>(null)
     const [saved, setSaved] = useState(false)
     const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+    const [hasCancellationRequest, setHasCancellationRequest] = useState(!!cancellationRequestedAt)
 
     const hasChanges =
         status !== initialStatus ||
@@ -116,6 +122,67 @@ export function LessonEditForm({
 
     return (
         <div className="space-y-4">
+            {/* Cancellation Request Alert */}
+            {hasCancellationRequest && status === 'planned' && (
+                <Card padding="md" className="bg-accent-subtle/30 border-accent animate-pulse-slow">
+                    <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                            <X size={20} className="text-accent" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="font-medium text-accent mb-1">
+                                キャンセル申請があります
+                            </p>
+                            <p className="text-sm text-ink-light mb-2">
+                                {cancellationRequestedAt && format(new Date(cancellationRequestedAt), 'M月d日 HH:mm', { locale: ja })}に申請
+                            </p>
+                            {cancellationReason && (
+                                <p className="text-sm text-ink mb-3 p-2 bg-paper rounded">
+                                    理由: {cancellationReason}
+                                </p>
+                            )}
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="primary"
+                                    size="sm"
+                                    onClick={() => {
+                                        setStatus('cancelled')
+                                        setShowCancelConfirm(true)
+                                    }}
+                                    className="!bg-accent hover:!bg-accent/90"
+                                >
+                                    <Check size={14} />
+                                    承認してキャンセル
+                                </Button>
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={async () => {
+                                        setLoading(true)
+                                        const supabase = createClient()
+                                        await supabase
+                                            .from('lessons')
+                                            .update({
+                                                cancellation_requested_at: null,
+                                                cancellation_reason: null,
+                                                cancellation_processed_at: new Date().toISOString(),
+                                            })
+                                            .eq('id', lessonId)
+                                        setHasCancellationRequest(false)
+                                        setLoading(false)
+                                        router.refresh()
+                                    }}
+                                    disabled={loading}
+                                >
+                                    <X size={14} />
+                                    却下
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            )}
+
             {/* Status */}
             <Card padding="md">
                 <CardHeader className="p-0 mb-3">

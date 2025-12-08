@@ -53,13 +53,16 @@ export function ParentLayout({ children, userName, studentName }: ParentLayoutPr
             <aside className="hidden lg:flex flex-col w-64 bg-paper-light border-r border-paper-dark">
                 {/* Logo/Header */}
                 <div className="p-6 border-b border-paper-dark">
-                    <Link href="/parent/home" className="block">
-                        <h1 className="font-display text-xl text-ink">
-                            家庭教師管理
-                        </h1>
-                        <p className="text-xs text-ink-faint mt-1">
-                            保護者ページ
-                        </p>
+                    <Link href="/parent/home" className="flex items-center gap-3">
+                        <img src="/logo.png" alt="Tutorin" className="w-10 h-10 rounded-lg" />
+                        <div>
+                            <h1 className="font-display text-xl text-ink">
+                                Tutorin
+                            </h1>
+                            <p className="text-xs text-ink-faint">
+                                保護者ページ
+                            </p>
+                        </div>
                     </Link>
                 </div>
 
@@ -123,7 +126,7 @@ export function ParentLayout({ children, userName, studentName }: ParentLayoutPr
             {/* Mobile Header */}
             <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-paper-light border-b border-paper-dark z-40 flex items-center justify-between px-4">
                 <Link href="/parent/home" className="font-display text-lg text-ink">
-                    家庭教師管理
+                    Tutorin
                 </Link>
                 <button
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth } from 'date-fns'
+import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, addMonths, isBefore, isAfter } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -26,13 +26,23 @@ interface ParentScheduleProps {
 
 export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
     const router = useRouter()
-    const [currentMonth, setCurrentMonth] = useState(new Date())
+    const [currentMonth, setCurrentMonth] = useState(() => addMonths(new Date(), 1))  // 翌月を初期表示
     const [selectedDate, setSelectedDate] = useState<Date | null>(null)
     const [showRequestForm, setShowRequestForm] = useState(false)
 
     const [requests, setRequests] = useState<ScheduleRequest[]>([])
     const [lessons, setLessons] = useState<Lesson[]>([])
     const [loading, setLoading] = useState(true)
+
+    // Define allowed month range: current month and next month only
+    const today = new Date()
+    const minMonth = startOfMonth(today)
+    const maxMonth = startOfMonth(addMonths(today, 1))
+
+    // Check if navigation is allowed
+    const canGoPrev = !isBefore(startOfMonth(addMonths(currentMonth, -1)), minMonth) &&
+        !isBefore(startOfMonth(addMonths(currentMonth, -1)), minMonth)
+    const canGoNext = !isAfter(startOfMonth(addMonths(currentMonth, 1)), maxMonth)
 
     // Fetch data
     useEffect(() => {
@@ -104,11 +114,15 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
     }
 
     const handlePrevMonth = () => {
-        setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
+        if (canGoPrev) {
+            setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
+        }
     }
 
     const handleNextMonth = () => {
-        setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
+        if (canGoNext) {
+            setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
+        }
     }
 
     const handleSuccess = () => {
@@ -227,7 +241,11 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
                 <div className="flex items-center justify-between p-4 border-b border-paper-dark">
                     <button
                         onClick={handlePrevMonth}
-                        className="p-2 rounded-lg hover:bg-paper-dark transition-colors"
+                        disabled={!canGoPrev}
+                        className={`p-2 rounded-lg transition-colors ${canGoPrev
+                            ? 'hover:bg-paper-dark'
+                            : 'opacity-30 cursor-not-allowed'
+                            }`}
                     >
                         <ChevronLeft size={20} />
                     </button>
@@ -236,7 +254,11 @@ export function ParentScheduleClient({ studentId }: ParentScheduleProps) {
                     </h2>
                     <button
                         onClick={handleNextMonth}
-                        className="p-2 rounded-lg hover:bg-paper-dark transition-colors"
+                        disabled={!canGoNext}
+                        className={`p-2 rounded-lg transition-colors ${canGoNext
+                            ? 'hover:bg-paper-dark'
+                            : 'opacity-30 cursor-not-allowed'
+                            }`}
                     >
                         <ChevronRight size={20} />
                     </button>

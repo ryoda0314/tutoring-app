@@ -168,7 +168,7 @@ export default async function ParentHome() {
             )}
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
                 {/* Pending Requests */}
                 <Link href="/parent/schedule">
                     <Card padding="md" className="animate-fade-slide-up stagger-2 cursor-pointer h-full">
@@ -185,34 +185,9 @@ export default async function ParentHome() {
                     </Card>
                 </Link>
 
-                {/* Next Month Billing */}
-                <Link href="/parent/billing">
-                    <Card padding="md" className="animate-fade-slide-up stagger-3 cursor-pointer h-full">
-                        <div className="flex flex-col items-center text-center">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${billingInfo.totalAmount > 0 ? 'bg-sage-subtle' : 'bg-paper-dark'
-                                }`}>
-                                <Wallet size={20} className={billingInfo.totalAmount > 0 ? 'text-sage' : 'text-ink-faint'} />
-                            </div>
-                            <p className="text-base font-display text-ink">{formatCurrency(billingInfo.totalAmount)}</p>
-                            <p className="text-xs text-ink-light">来月請求</p>
-                            <div className="mt-1">
-                                {billingInfo.isConfirmed ? (
-                                    <span className="inline-flex items-center gap-0.5 text-xs text-sage">
-                                        <CheckCircle2 size={10} />確定
-                                    </span>
-                                ) : (
-                                    <span className="inline-flex items-center gap-0.5 text-xs text-ochre">
-                                        <AlertCircle size={10} />暫定
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                    </Card>
-                </Link>
-
                 {/* Makeup Credits */}
                 <Link href="/parent/makeup">
-                    <Card padding="md" className="animate-fade-slide-up stagger-4 cursor-pointer h-full">
+                    <Card padding="md" className="animate-fade-slide-up stagger-3 cursor-pointer h-full">
                         <div className="flex flex-col items-center text-center">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${totalMakeupMinutes > 0 ? 'bg-ochre-subtle' : 'bg-paper-dark'
                                 }`}>

@@ -144,9 +144,11 @@ export default function LoginPage() {
                         initial={{ scale: 0.9 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.2 }}
+                        className="flex flex-col items-center"
                     >
+                        <img src="/logo.png" alt="Tutorin" className="w-16 h-16 rounded-xl mb-4" />
                         <h1 className="text-3xl font-display text-ink mb-2">
-                            家庭教師管理
+                            Tutorin
                         </h1>
                         <p className="text-ink-light">
                             レッスン・日程・連絡を簡単に
@@ -162,8 +164,8 @@ export default function LoginPage() {
                             type="button"
                             onClick={() => { setAuthMode('login'); setError(null); }}
                             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-all border-b-2 -mb-px ${authMode === 'login'
-                                    ? 'border-ink text-ink'
-                                    : 'border-transparent text-ink-faint hover:text-ink-light'
+                                ? 'border-ink text-ink'
+                                : 'border-transparent text-ink-faint hover:text-ink-light'
                                 }`}
                         >
                             <LogIn size={18} />
@@ -173,8 +175,8 @@ export default function LoginPage() {
                             type="button"
                             onClick={() => { setAuthMode('signup'); setError(null); }}
                             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-all border-b-2 -mb-px ${authMode === 'signup'
-                                    ? 'border-ink text-ink'
-                                    : 'border-transparent text-ink-faint hover:text-ink-light'
+                                ? 'border-ink text-ink'
+                                : 'border-transparent text-ink-faint hover:text-ink-light'
                                 }`}
                         >
                             <UserPlus size={18} />
@@ -188,8 +190,8 @@ export default function LoginPage() {
                             type="button"
                             onClick={() => setRole('parent')}
                             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-medium transition-all ${role === 'parent'
-                                    ? 'bg-paper-light shadow-sm text-ink'
-                                    : 'text-ink-faint hover:text-ink-light'
+                                ? 'bg-paper-light shadow-sm text-ink'
+                                : 'text-ink-faint hover:text-ink-light'
                                 }`}
                         >
                             <Users size={18} />
@@ -199,8 +201,8 @@ export default function LoginPage() {
                             type="button"
                             onClick={() => setRole('teacher')}
                             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-medium transition-all ${role === 'teacher'
-                                    ? 'bg-paper-light shadow-sm text-ink'
-                                    : 'text-ink-faint hover:text-ink-light'
+                                ? 'bg-paper-light shadow-sm text-ink'
+                                : 'text-ink-faint hover:text-ink-light'
                                 }`}
                         >
                             <BookOpen size={18} />
@@ -360,7 +362,7 @@ export default function LoginPage() {
 
                 {/* Footer */}
                 <p className="text-center text-xs text-ink-faint mt-6">
-                    © 2024 家庭教師管理アプリ
+                    © 2024 Tutorin
                 </p>
             </motion.div>
         </div>

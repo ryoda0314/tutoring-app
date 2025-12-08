@@ -118,6 +118,8 @@ export default async function TeacherLessonDetailPage({
                 initialStatus={lesson.status}
                 initialMemo={lesson.memo || ''}
                 initialHomework={lesson.homework || ''}
+                cancellationRequestedAt={lesson.cancellation_requested_at || null}
+                cancellationReason={lesson.cancellation_reason || null}
             />
         </div>
     )

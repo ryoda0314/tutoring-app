@@ -14,7 +14,6 @@ import {
     LogOut,
     Menu,
     X,
-    UserPlus,
     Settings,
     CreditCard,
 } from 'lucide-react'
@@ -23,7 +22,6 @@ import { useState } from 'react'
 const teacherNavItems = [
     { href: '/teacher/dashboard', label: 'ダッシュボード', icon: LayoutDashboard },
     { href: '/teacher/students', label: '生徒一覧', icon: Users },
-    { href: '/teacher/invite', label: '保護者招待', icon: UserPlus },
     { href: '/teacher/schedule-requests', label: '日程リクエスト', icon: CalendarClock },
     { href: '/teacher/calendar', label: 'カレンダー', icon: Calendar },
     { href: '/teacher/messages', label: 'メッセージ', icon: MessageSquare },
@@ -55,13 +53,16 @@ export function TeacherLayout({ children, userName }: TeacherLayoutProps) {
             <aside className="hidden lg:flex flex-col w-64 bg-paper-light border-r border-paper-dark">
                 {/* Logo/Header */}
                 <div className="p-6 border-b border-paper-dark">
-                    <Link href="/teacher/dashboard" className="block">
-                        <h1 className="font-display text-xl text-ink">
-                            家庭教師管理
-                        </h1>
-                        <p className="text-xs text-ink-faint mt-1">
-                            先生用ダッシュボード
-                        </p>
+                    <Link href="/teacher/dashboard" className="flex items-center gap-3">
+                        <img src="/logo.png" alt="Tutorin" className="w-10 h-10 rounded-lg" />
+                        <div>
+                            <h1 className="font-display text-xl text-ink">
+                                Tutorin
+                            </h1>
+                            <p className="text-xs text-ink-faint">
+                                先生用ダッシュボード
+                            </p>
+                        </div>
                     </Link>
                 </div>
 
@@ -110,7 +111,7 @@ export function TeacherLayout({ children, userName }: TeacherLayoutProps) {
             {/* Mobile Header */}
             <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-paper-light border-b border-paper-dark z-40 flex items-center justify-between px-4">
                 <Link href="/teacher/dashboard" className="font-display text-lg text-ink">
-                    家庭教師管理
+                    Tutorin
                 </Link>
                 <button
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

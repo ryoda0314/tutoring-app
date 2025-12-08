@@ -10,7 +10,6 @@ import { formatMakeupTime, formatExpirationStatus } from '@/lib/makeup'
 import { formatCurrency } from '@/lib/pricing'
 import {
     ArrowLeft,
-    Edit,
     GraduationCap,
     CalendarDays,
     Clock,
@@ -84,12 +83,6 @@ export default async function TeacherStudentDetailPage({
                         {student.school && ` · ${student.school}`}
                     </p>
                 </div>
-                <Link href={`/teacher/students/${id}/edit`}>
-                    <Button variant="secondary" size="sm">
-                        <Edit size={16} />
-                        編集
-                    </Button>
-                </Link>
             </div>
 
             {/* Quick stats */}

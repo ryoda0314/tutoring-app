@@ -14,6 +14,7 @@ import {
     ChevronRight,
     Users,
     AlertCircle,
+    XCircle,
 } from 'lucide-react'
 
 export default async function TeacherDashboard() {
@@ -99,6 +100,21 @@ export default async function TeacherDashboard() {
         0
     ) ?? 0
 
+    // Fetch pending cancellation requests
+    const { data: cancellationRequests } = await supabase
+        .from('lessons')
+        .select(`
+            *,
+            student:students(id, name)
+        `)
+        .not('cancellation_requested_at', 'is', null)
+        .is('cancellation_processed_at', null)
+        .eq('status', 'planned')
+        .order('cancellation_requested_at', { ascending: false })
+        .limit(5)
+
+    const cancellationCount = cancellationRequests?.length ?? 0
+
     return (
         <div className="space-y-8">
             {/* Page Header */}
@@ -171,6 +187,47 @@ export default async function TeacherDashboard() {
                     </Card>
                 </Link>
             </div>
+
+            {/* Cancellation Requests Alert */}
+            {cancellationCount > 0 && (
+                <Card padding="md" className="animate-fade-slide-up bg-accent-subtle/30 border-accent">
+                    <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                            <XCircle size={20} className="text-accent" />
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="font-medium text-accent mb-2">
+                                キャンセル申請があります（{cancellationCount}件）
+                            </h3>
+                            <div className="space-y-2">
+                                {cancellationRequests?.map((lesson: any) => (
+                                    <Link
+                                        key={lesson.id}
+                                        href={`/teacher/lessons/${lesson.id}`}
+                                        className="block p-2 bg-paper rounded-lg hover:bg-paper-light transition-colors"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-medium text-ink text-sm">
+                                                {lesson.student?.name}
+                                            </span>
+                                            <span className="text-xs text-ink-light">
+                                                {format(new Date(lesson.date), 'M/d（E）', { locale: ja })}
+                                                {' '}
+                                                {lesson.start_time.slice(0, 5)}
+                                            </span>
+                                        </div>
+                                        {lesson.cancellation_reason && (
+                                            <p className="text-xs text-ink-faint mt-1 truncate">
+                                                理由: {lesson.cancellation_reason}
+                                            </p>
+                                        )}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            )}
 
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
