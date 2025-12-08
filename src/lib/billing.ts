@@ -60,7 +60,7 @@ export function getBillingMonthRange(targetMonth: Date): { start: string; end: s
 export function isBillingConfirmed(targetMonth: Date, currentDate: Date = new Date()): boolean {
     // Confirmation happens on the 20th of the month before the target month
     const confirmationMonth = addMonths(targetMonth, -1)
-    const confirmationDay = 20
+    const confirmationDay = 7
 
     // If we're past the confirmation date, billing is confirmed
     const currentMonthStart = startOfMonth(currentDate)
@@ -87,7 +87,7 @@ export function isBillingConfirmed(targetMonth: Date, currentDate: Date = new Da
  */
 export function getConfirmationDate(targetMonth: Date): Date {
     const confirmationMonth = addMonths(targetMonth, -1)
-    return new Date(confirmationMonth.getFullYear(), confirmationMonth.getMonth(), 20)
+    return new Date(confirmationMonth.getFullYear(), confirmationMonth.getMonth(), 7)
 }
 
 /**
