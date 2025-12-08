@@ -112,10 +112,15 @@ export function calculateBillingInfo(
     currentDate: Date = new Date(),
     prevMonthLessons: Lesson[] = []
 ): BillingInfo {
+    const confirmationDate = getConfirmationDate(targetMonth)
+
     // Filter: planned status (including makeup lessons for transport fee)
-    const billableLessons = lessons.filter(
-        (lesson) => lesson.status === 'planned'
-    )
+    // AND created before the confirmation date (otherwise billed next month)
+    const billableLessons = lessons.filter((lesson) => {
+        if (!lesson.created_at) return lesson.status === 'planned'
+        const createdAt = new Date(lesson.created_at)
+        return lesson.status === 'planned' && createdAt <= confirmationDate
+    })
 
     const lessonFeeTotal = billableLessons.reduce(
         (sum, lesson) => sum + (lesson.amount || 0),
@@ -144,8 +149,9 @@ export function calculateBillingInfo(
 
         const isCreatedAfterBilling = createdAt > billingDate
 
-        if (lesson.status === 'done') {
+        if (lesson.status !== 'cancelled') {
             // 1. Added Lessons (created after billing date)
+            // Includes both 'done' and 'planned' lessons that were added late
             if (isCreatedAfterBilling) {
                 // Charge full amount
                 const amount = (lesson.amount || 0) + (lesson.transport_fee || 0)
