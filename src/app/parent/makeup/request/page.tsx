@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { MakeupRequestForm } from '@/components/makeup/makeup-request-form'
 import { Card } from '@/components/ui/card'
 import { formatMakeupTime, formatExpirationStatus, daysUntilExpiration } from '@/lib/makeup'
+import type { MakeupCredit } from '@/types/database'
 import Link from 'next/link'
 import {
     ArrowLeft,
@@ -29,16 +30,16 @@ export default async function ParentMakeupRequestPage() {
     }
 
     // Fetch makeup credits
-    const { data: makeupCredits } = await supabase
-        .from('makeup_credits')
+    const { data: makeupCredits } = await (supabase
+        .from('makeup_credits') as any)
         .select('*')
         .eq('student_id', profile.student_id)
         .gt('total_minutes', 0)
         .gt('expires_at', new Date().toISOString())
         .order('expires_at')
 
-    const activeCredits = makeupCredits || []
-    const hasUrgentCredits = activeCredits.some(c => daysUntilExpiration(c.expires_at) <= 7)
+    const activeCredits = (makeupCredits || []) as MakeupCredit[]
+    const hasUrgentCredits = activeCredits.some((c: MakeupCredit) => daysUntilExpiration(c.expires_at) <= 7)
 
     return (
         <div className="space-y-6">
