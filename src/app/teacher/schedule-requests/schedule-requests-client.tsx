@@ -144,7 +144,22 @@ export function ScheduleRequestsClient() {
             }
 
             const amount = isMakeupRequest ? 0 : calculateLessonAmount(hours, hourlyRate)
-            const transportFee = getTransportFee(request.location)
+            // Calculate transport fee
+            let transportFee = getTransportFee(request.location) // Default fallback
+
+            if (request.location) {
+                // Try to find matching location from student_locations
+                const { data: locationData } = await (supabase
+                    .from('student_locations') as any)
+                    .select('transportation_fee')
+                    .eq('student_id', request.student_id)
+                    .eq('name', request.location)
+                    .single()
+
+                if (locationData && locationData.transportation_fee !== null) {
+                    transportFee = locationData.transportation_fee
+                }
+            }
 
             // Create lesson
             const { error: lessonError } = await (supabase

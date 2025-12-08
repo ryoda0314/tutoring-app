@@ -172,6 +172,25 @@ export function TeacherCalendarClient() {
             }
         }
 
+        // Calculate transport fee
+        let transportFee = 0
+        if (request.location) {
+            // Try to find matching location from student_locations
+            const { data: locationData } = await (supabase
+                .from('student_locations') as any)
+                .select('transportation_fee')
+                .eq('student_id', request.student_id)
+                .eq('name', request.location)
+                .single()
+
+            if (locationData && locationData.transportation_fee !== null) {
+                transportFee = locationData.transportation_fee
+            } else {
+                // Fallback to hardcoded values (legacy support)
+                transportFee = request.location === '日暮里' ? 900 : request.location === '蓮沼' ? 1500 : 0
+            }
+        }
+
         // Create lesson (for makeup: amount = 0)
         await (supabase
             .from('lessons') as any)
@@ -182,7 +201,7 @@ export function TeacherCalendarClient() {
                 end_time: request.end_time,
                 hours,
                 amount: isMakeupRequest ? 0 : Math.round(hours * hourlyRate),
-                transport_fee: request.location === '日暮里' ? 900 : request.location === '蓮沼' ? 1500 : 0,
+                transport_fee: transportFee,
                 status: 'planned',
             })
 
