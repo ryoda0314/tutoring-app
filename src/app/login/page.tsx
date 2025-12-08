@@ -44,7 +44,7 @@ export default function LoginPage() {
                     .from('profiles')
                     .select('role')
                     .eq('id', data.user.id)
-                    .single()
+                    .single() as { data: { role: string } | null; error: any }
 
                 if (profileError || !profile) {
                     setError('プロフィールが見つかりません。管理者にお問い合わせください。')
