@@ -34,7 +34,7 @@ export default async function TeacherLessonDetailPage({
       student:students(id, name, grade)
     `)
         .eq('id', id)
-        .single()
+        .single() as { data: any | null }
 
     if (!lesson) {
         notFound()

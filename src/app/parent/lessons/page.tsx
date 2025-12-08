@@ -15,7 +15,7 @@ export default async function ParentLessonsPage() {
         .from('profiles')
         .select('student_id')
         .eq('id', user.id)
-        .single()
+        .single() as { data: { student_id: string | null } | null }
 
     if (!profile?.student_id) {
         return (

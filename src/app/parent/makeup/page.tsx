@@ -22,7 +22,7 @@ export default async function ParentMakeupPage() {
         .from('profiles')
         .select('student_id')
         .eq('id', user.id)
-        .single()
+        .single() as { data: { student_id: string | null } | null }
 
     if (!profile?.student_id) {
         return (

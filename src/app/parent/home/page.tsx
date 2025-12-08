@@ -12,6 +12,7 @@ import {
     calculateBillingInfo,
     type Lesson,
 } from '@/lib/billing'
+import type { MakeupCredit } from '@/types/database'
 import {
     CalendarDays,
     CalendarClock,
@@ -90,7 +91,7 @@ export default async function ParentHome() {
         .eq('student_id', studentId)
         .gt('total_minutes', 0)
         .gt('expires_at', today.toISOString())
-        .order('expires_at', { ascending: true })
+        .order('expires_at', { ascending: true }) as { data: MakeupCredit[] | null }
 
     const totalMakeupMinutes = makeupCredits?.reduce(
         (sum, credit) => sum + (credit.total_minutes || 0),

@@ -37,7 +37,7 @@ export function TeacherSettingsClient() {
                 .from('teacher_settings')
                 .select('*')
                 .eq('teacher_id', user.id)
-                .single()
+                .single() as { data: TeacherSettings | null }
 
             if (settingsData) {
                 setSettings(settingsData)
@@ -82,7 +82,7 @@ export function TeacherSettingsClient() {
                 .from('teacher_settings')
                 .insert(settingsData)
                 .select()
-                .single()
+                .single() as { data: TeacherSettings | null }
             if (data) {
                 setSettings(data)
             }
