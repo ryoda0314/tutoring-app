@@ -156,8 +156,8 @@ export function TeacherCalendarClient() {
         }
 
         // Create lesson (for makeup: amount = 0)
-        await supabase
-            .from('lessons')
+        await (supabase
+            .from('lessons') as any)
             .insert({
                 student_id: request.student_id,
                 date: request.date,
@@ -170,8 +170,8 @@ export function TeacherCalendarClient() {
             })
 
         // Update request
-        await supabase
-            .from('schedule_requests')
+        await (supabase
+            .from('schedule_requests') as any)
             .update({ status: 'confirmed' })
             .eq('id', request.id)
 
