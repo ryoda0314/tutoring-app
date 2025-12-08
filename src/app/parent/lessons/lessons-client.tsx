@@ -259,9 +259,22 @@ export function LessonsClient({ upcomingLessons: initialUpcoming, pastLessons }:
                                     className="mb-4"
                                 />
 
-                                <p className="text-xs text-ink-faint mb-4">
-                                    ※ キャンセルは先生の承認後に確定します。振替クレジットが付与される場合があります。
-                                </p>
+                                {selectedLesson.is_makeup ? (
+                                    <div className="p-3 bg-accent-subtle/30 rounded-lg mb-4 border border-accent flex gap-3 text-left">
+                                        <AlertTriangle size={20} className="text-accent flex-shrink-0 mt-0.5" />
+                                        <div>
+                                            <p className="text-sm font-bold text-accent mb-1">振替レッスンのキャンセルについて</p>
+                                            <p className="text-xs text-ink-light leading-relaxed">
+                                                このレッスンは振替授業です。キャンセルすると<strong className="text-accent">振替権利は消滅し、再度の振替はできません。</strong><br />
+                                                それでもキャンセル申請を続けますか？
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-xs text-ink-faint mb-4">
+                                        ※ キャンセルは先生の承認後に確定します。振替クレジットが付与される場合があります。
+                                    </p>
+                                )}
 
                                 {error && (
                                     <p className="text-sm text-accent mb-4">{error}</p>
