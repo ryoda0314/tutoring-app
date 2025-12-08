@@ -53,8 +53,8 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
 
             if (currentPayment) {
                 // Update existing record
-                const { data, error: updateError } = await supabase
-                    .from('monthly_payments')
+                const { data, error: updateError } = await (supabase
+                    .from('monthly_payments') as any)
                     .update({
                         payment_reported_at: new Date().toISOString(),
                     })
@@ -66,8 +66,8 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
                 setCurrentPayment(data)
             } else {
                 // Create new record
-                const { data, error: insertError } = await supabase
-                    .from('monthly_payments')
+                const { data, error: insertError } = await (supabase
+                    .from('monthly_payments') as any)
                     .insert({
                         student_id: studentId,
                         year_month: yearMonth,
