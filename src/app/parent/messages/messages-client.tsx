@@ -66,7 +66,14 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
                 },
                 (payload) => {
                     // Prepend new message since we are showing newest first
-                    setMessages((prev) => [payload.new as Message, ...prev])
+                    // Use functional update and check for duplicates
+                    setMessages((prev) => {
+                        const newMessage = payload.new as Message
+                        if (prev.some(m => m.id === newMessage.id)) {
+                            return prev
+                        }
+                        return [newMessage, ...prev]
+                    })
                 }
             )
             .on(
@@ -95,15 +102,32 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
 
         setSending(true)
         const supabase = createClient()
+        const messageBody = newMessage.trim()
 
-        await (supabase.from('messages') as any).insert({
-            student_id: studentId,
-            sender_type: 'parent',
-            body: newMessage.trim(),
-            message_type: messageType,
-        })
-
+        // Clear input immediately for better UX
         setNewMessage('')
+
+        const { data, error } = await (supabase.from('messages') as any)
+            .insert({
+                student_id: studentId,
+                sender_type: 'parent',
+                body: messageBody,
+                message_type: messageType,
+            })
+            .select() // Fetch the inserted data immediately
+            .single()
+
+        if (data) {
+            setMessages((prev) => {
+                if (prev.some(m => m.id === data.id)) return prev
+                return [data, ...prev]
+            })
+        } else if (error) {
+            // Restore input on error (optional, but good UX)
+            setNewMessage(messageBody)
+            console.error('Error sending message:', error)
+        }
+
         setSending(false)
     }
 
@@ -188,8 +212,8 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
                                         </td>
                                         <td className="p-2 align-top">
                                             <span className={`text-xs px-1.5 py-0.5 rounded inline-block ${message.sender_type === 'teacher'
-                                                    ? 'bg-sage text-paper-light'
-                                                    : 'bg-ink-faint/20 text-ink'
+                                                ? 'bg-sage text-paper-light'
+                                                : 'bg-ink-faint/20 text-ink'
                                                 }`}>
                                                 {message.sender_type === 'teacher' ? '先生' : '自分'}
                                             </span>
