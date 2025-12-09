@@ -34,8 +34,9 @@ export default async function TeacherDashboard() {
         .from('lessons')
         .select(`
       *,
-      student:students(name)
+      student:students!inner(name, teacher_id)
     `)
+        .eq('student.teacher_id', user.id)
         .gte('date', format(today, 'yyyy-MM-dd'))
         .lte('date', format(sevenDaysLater, 'yyyy-MM-dd'))
         .in('status', ['planned', 'done'])
@@ -48,8 +49,9 @@ export default async function TeacherDashboard() {
         .from('schedule_requests')
         .select(`
       *,
-      student:students(name)
+      student:students!inner(name, teacher_id)
     `)
+        .eq('student.teacher_id', user.id)
         .eq('status', 'requested')
         .order('created_at', { ascending: false })
         .limit(5) as { data: any[] | null; error: any }
@@ -57,14 +59,16 @@ export default async function TeacherDashboard() {
     // Get count of all pending requests
     const { count: pendingCount } = await supabase
         .from('schedule_requests')
-        .select('*', { count: 'exact', head: true })
+        .select('*, student:students!inner(teacher_id)', { count: 'exact', head: true })
+        .eq('student.teacher_id', user.id)
         .eq('status', 'requested')
 
     // Calculate this month's income (planned + cancelled = confirmed, excluding done/makeup)
     // Cancelled lessons still count as revenue (no refunds)
     const { data: monthLessons } = await supabase
         .from('lessons')
-        .select('amount, transport_fee, is_makeup, status')
+        .select('amount, transport_fee, is_makeup, status, student:students!inner(teacher_id)')
+        .eq('student.teacher_id', user.id)
         .gte('date', format(monthStart, 'yyyy-MM-dd'))
         .lte('date', format(monthEnd, 'yyyy-MM-dd'))
         .in('status', ['planned', 'cancelled']) as { data: any[] | null }  // Confirmed lessons (done not counted to avoid duplication)
@@ -84,6 +88,7 @@ export default async function TeacherDashboard() {
     const { count: studentsCount } = await supabase
         .from('students')
         .select('*', { count: 'exact', head: true })
+        .eq('teacher_id', user.id)
 
     // Get makeup credits summary
     const { data: makeupCredits } = await supabase
@@ -91,8 +96,9 @@ export default async function TeacherDashboard() {
         .select(`
       total_minutes,
       expires_at,
-      student:students(name)
+      student:students!inner(name, teacher_id)
     `)
+        .eq('student.teacher_id', user.id)
         .gt('total_minutes', 0)
         .gt('expires_at', new Date().toISOString()) as { data: any[] | null }
 
@@ -106,8 +112,9 @@ export default async function TeacherDashboard() {
         .from('lessons')
         .select(`
             *,
-            student:students(id, name)
+            student:students!inner(id, name, teacher_id)
         `)
+        .eq('student.teacher_id', user.id)
         .not('cancellation_requested_at', 'is', null)
         .is('cancellation_processed_at', null)
         .eq('status', 'planned')

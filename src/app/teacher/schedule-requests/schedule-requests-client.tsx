@@ -55,13 +55,20 @@ export function ScheduleRequestsClient() {
     const fetchRequests = async () => {
         setLoading(true)
         const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (!user) {
+            setLoading(false)
+            return
+        }
 
         let query = supabase
             .from('schedule_requests')
             .select(`
         *,
-        student:students(id, name)
+        student:students!inner(id, name, teacher_id)
       `)
+            .eq('student.teacher_id', user.id)
             .order('created_at', { ascending: false })
 
         if (filter !== 'all') {
