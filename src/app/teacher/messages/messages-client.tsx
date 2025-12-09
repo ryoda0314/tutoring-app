@@ -262,7 +262,7 @@ export function TeacherMessagesClient() {
                                             <thead className="bg-paper-dark/50 sticky top-0">
                                                 <tr className="text-left text-xs text-ink-faint">
                                                     <th className="p-2 w-20">日時</th>
-                                                    <th className="p-2 w-16">送信者</th>
+                                                    <th className="p-2 w-20">送信者</th>
                                                     <th className="p-2 w-20">種別</th>
                                                     <th className="p-2">内容</th>
                                                     <th className="p-2 w-10"></th>
@@ -282,7 +282,7 @@ export function TeacherMessagesClient() {
                                                         <td className="p-2 text-xs text-ink-faint whitespace-nowrap">
                                                             {format(new Date(message.created_at || new Date()), 'M/d H:mm', { locale: ja })}
                                                         </td>
-                                                        <td className="p-2">
+                                                        <td className="p-2 whitespace-nowrap">
                                                             <span className={`text-xs px-1.5 py-0.5 rounded ${message.sender_type === 'teacher'
                                                                 ? 'bg-sage text-paper-light'
                                                                 : 'bg-ink-faint/20 text-ink'

@@ -210,7 +210,7 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
                                         <td className="p-2 text-xs text-ink-faint whitespace-nowrap align-top">
                                             {format(new Date(message.created_at || new Date()), 'M/d H:mm', { locale: ja })}
                                         </td>
-                                        <td className="p-2 align-top">
+                                        <td className="p-2 whitespace-nowrap align-top">
                                             <span className={`text-xs px-1.5 py-0.5 rounded inline-block ${message.sender_type === 'teacher'
                                                 ? 'bg-sage text-paper-light'
                                                 : 'bg-ink-faint/20 text-ink'
