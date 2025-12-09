@@ -14,11 +14,16 @@ export default async function TeacherStudentEditPage({
     const { id } = await params
     const supabase = await createClient()
 
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return null
+
     // Fetch student
     const { data: student } = await (supabase
         .from('students') as any)
         .select('*')
         .eq('id', id)
+        .eq('teacher_id', user.id)
         .single() as { data: Student | null }
 
     if (!student) {

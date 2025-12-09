@@ -35,9 +35,10 @@ export default async function TeacherMakeupPage() {
         .from('makeup_credits')
         .select(`
       *,
-      student:students(id, name),
+      student:students!inner(id, name, teacher_id),
       origin_lesson:lessons(date)
     `)
+        .eq('student.teacher_id', user.id)
         .gt('total_minutes', 0)
         .order('expires_at') as { data: MakeupCreditWithRelations[] | null }
 

@@ -39,6 +39,20 @@ export function InviteCodeGenerator({ studentId, studentName }: InviteCodeGenera
             return
         }
 
+        // Verify student belongs to this teacher
+        const { data: student } = await supabase
+            .from('students')
+            .select('id')
+            .eq('id', studentId)
+            .eq('teacher_id', user.id)
+            .single()
+
+        if (!student) {
+            setError('権限がありません')
+            setLoading(false)
+            return
+        }
+
         const code = generateCode()
         const expiresAt = new Date()
         expiresAt.setDate(expiresAt.getDate() + 7) // 7 days expiry

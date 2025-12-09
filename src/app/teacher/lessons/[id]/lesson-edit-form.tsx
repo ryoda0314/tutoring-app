@@ -81,6 +81,27 @@ export function LessonEditForm({
         const supabase = createClient()
 
         try {
+            const { data: { user } } = await supabase.auth.getUser()
+
+            if (!user) {
+                setError('ログインが必要です')
+                setLoading(false)
+                return
+            }
+
+            // Verify student belongs to this teacher
+            const { count } = await supabase
+                .from('students')
+                .select('id', { count: 'exact', head: true })
+                .eq('id', studentId)
+                .eq('teacher_id', user.id)
+
+            if (count === 0) {
+                setError('権限がありません')
+                setLoading(false)
+                return
+            }
+
             // Construct cancellation reason
             let finalCancellationReason = cancellationReason
 

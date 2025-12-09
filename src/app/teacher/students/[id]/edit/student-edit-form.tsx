@@ -72,6 +72,14 @@ export function StudentEditForm({ student }: StudentEditFormProps) {
         try {
             const supabase = createClient()
 
+            const { data: { user } } = await supabase.auth.getUser()
+
+            if (!user) {
+                setError('ログインが必要です')
+                setLoading(false)
+                return
+            }
+
             const { error: updateError } = await (supabase
                 .from('students') as any)
                 .update({
@@ -84,6 +92,7 @@ export function StudentEditForm({ student }: StudentEditFormProps) {
                     note: note || null,
                 })
                 .eq('id', student.id)
+                .eq('teacher_id', user.id)
 
             if (updateError) throw updateError
 

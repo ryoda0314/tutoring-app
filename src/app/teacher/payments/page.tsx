@@ -20,8 +20,9 @@ export default async function TeacherPaymentsPage() {
         .from('monthly_payments')
         .select(`
             *,
-            student:students(id, name)
+            student:students!inner(id, name, teacher_id)
         `)
+        .eq('student.teacher_id', user.id)
         .not('payment_reported_at', 'is', null)
         .order('payment_reported_at', { ascending: false })
 

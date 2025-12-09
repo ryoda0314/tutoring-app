@@ -65,10 +65,18 @@ export function TeacherMessagesClient() {
 
         const fetchMessages = async () => {
             const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
+
+            if (!user) return
+
             const { data } = await supabase
                 .from('messages')
-                .select('*')
+                .select(`
+                    *,
+                    student:students!inner(teacher_id)
+                `)
                 .eq('student_id', selectedStudentId)
+                .eq('student.teacher_id', user.id)
                 .order('created_at', { ascending: false }) as { data: any[] | null }
             setMessages(data || [])
         }
