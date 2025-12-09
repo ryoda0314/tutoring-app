@@ -47,6 +47,13 @@ export function TeacherCalendarClient() {
             setLoading(true)
             const supabase = createClient()
 
+            // Get current user
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) {
+                setLoading(false)
+                return
+            }
+
             const monthStart = startOfMonth(currentMonth)
             const monthEnd = endOfMonth(currentMonth)
 
@@ -55,8 +62,9 @@ export function TeacherCalendarClient() {
                 .from('lessons')
                 .select(`
           *,
-          student:students(id, name)
+          student:students!inner(id, name, teacher_id)
         `)
+                .eq('student.teacher_id', user.id)
                 .gte('date', format(monthStart, 'yyyy-MM-dd'))
                 .lte('date', format(monthEnd, 'yyyy-MM-dd'))
                 .neq('status', 'cancelled')
@@ -68,8 +76,9 @@ export function TeacherCalendarClient() {
                 .from('schedule_requests')
                 .select(`
           *,
-          student:students(id, name)
+          student:students!inner(id, name, teacher_id)
         `)
+                .eq('student.teacher_id', user.id)
                 .gte('date', format(monthStart, 'yyyy-MM-dd'))
                 .lte('date', format(monthEnd, 'yyyy-MM-dd'))
                 .in('status', ['requested', 'reproposed'])
