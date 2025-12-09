@@ -28,11 +28,18 @@ export default async function TeacherStudentDetailPage({
     const { id } = await params
     const supabase = await createClient()
 
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+        notFound()
+    }
+
     // Fetch student
     const { data: student } = await supabase
         .from('students')
         .select('*')
         .eq('id', id)
+        .eq('teacher_id', user.id)
         .single() as { data: any | null }
 
     if (!student) {

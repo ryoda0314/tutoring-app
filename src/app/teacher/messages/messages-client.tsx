@@ -46,9 +46,14 @@ export function TeacherMessagesClient() {
     useEffect(() => {
         const fetchStudents = async () => {
             const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
+
+            if (!user) return
+
             const { data } = await supabase
                 .from('students')
                 .select('*')
+                .eq('teacher_id', user.id)
                 .order('name') as { data: any[] | null }
             setStudents(data || [])
             setLoading(false)
@@ -95,7 +100,15 @@ export function TeacherMessagesClient() {
                     filter: `student_id=eq.${selectedStudentId}`,
                 },
                 (payload) => {
-                    setMessages((prev) => [payload.new as Message, ...prev])
+                    // Prepend new message since we are showing newest first
+                    // Use functional update and check for duplicates
+                    setMessages((prev) => {
+                        const newMessage = payload.new as Message
+                        if (prev.some(m => m.id === newMessage.id)) {
+                            return prev
+                        }
+                        return [newMessage, ...prev]
+                    })
                 }
             )
             .subscribe()
@@ -110,15 +123,32 @@ export function TeacherMessagesClient() {
 
         setSending(true)
         const supabase = createClient()
+        const messageBody = newMessage.trim()
 
-        await (supabase.from('messages') as any).insert({
-            student_id: selectedStudentId,
-            sender_type: 'teacher',
-            body: newMessage.trim(),
-            message_type: messageType,
-        })
-
+        // Clear input immediately for better UX
         setNewMessage('')
+
+        const { data, error } = await (supabase.from('messages') as any)
+            .insert({
+                student_id: selectedStudentId,
+                sender_type: 'teacher',
+                body: messageBody,
+                message_type: messageType,
+            })
+            .select() // Fetch the inserted data immediately
+            .single()
+
+        if (data) {
+            setMessages((prev) => {
+                if (prev.some(m => m.id === data.id)) return prev
+                return [data, ...prev]
+            })
+        } else if (error) {
+            // Restore input on error
+            setNewMessage(messageBody)
+            console.error('Error sending message:', error)
+        }
+
         setSending(false)
     }
 
