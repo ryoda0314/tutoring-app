@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -15,6 +15,7 @@ import {
     Send,
     Pin,
     MessageSquare,
+    User,
 } from 'lucide-react'
 
 interface ParentMessagesClientProps {
@@ -36,8 +37,6 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
     const [newMessage, setNewMessage] = useState('')
     const [messageType, setMessageType] = useState<MessageType>('連絡事項')
 
-    const messagesEndRef = useRef<HTMLDivElement>(null)
-
     // Fetch messages
     useEffect(() => {
         const fetchMessages = async () => {
@@ -47,7 +46,7 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
                 .from('messages')
                 .select('*')
                 .eq('student_id', studentId)
-                .order('created_at', { ascending: true })
+                .order('created_at', { ascending: false }) // Newest first
             setMessages(data || [])
             setLoading(false)
         }
@@ -66,7 +65,22 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
                     filter: `student_id=eq.${studentId}`,
                 },
                 (payload) => {
-                    setMessages((prev) => [...prev, payload.new as Message])
+                    // Prepend new message since we are showing newest first
+                    setMessages((prev) => [payload.new as Message, ...prev])
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'messages',
+                    filter: `student_id=eq.${studentId}`,
+                },
+                (payload) => {
+                    setMessages((prev) => prev.map(m =>
+                        m.id === payload.new.id ? payload.new as Message : m
+                    ))
                 }
             )
             .subscribe()
@@ -75,11 +89,6 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
             supabase.removeChannel(channel)
         }
     }, [studentId])
-
-    // Scroll to bottom when messages change
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, [messages])
 
     const handleSend = async () => {
         if (!newMessage.trim()) return
@@ -98,9 +107,6 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
         setSending(false)
     }
 
-    // Get pinned messages
-    const pinnedMessages = messages.filter(m => m.is_pinned)
-
     if (loading) {
         return (
             <div className="flex items-center justify-center py-12">
@@ -110,114 +116,102 @@ export function ParentMessagesClient({ studentId }: ParentMessagesClientProps) {
     }
 
     return (
-        <div className="space-y-6">
-            <h1 className="text-2xl font-display text-ink">先生との連絡</h1>
+        <div className="space-y-4">
+            <h1 className="text-xl font-display text-ink">メッセージ</h1>
 
-            {/* Pinned messages */}
-            {pinnedMessages.length > 0 && (
-                <Card padding="md" className="bg-ochre-subtle/30 border-ochre-subtle">
-                    <div className="flex items-center gap-2 mb-3">
-                        <Pin size={16} className="text-ochre" />
-                        <span className="text-sm font-medium text-ochre">固定メッセージ</span>
-                    </div>
-                    <div className="space-y-2">
-                        {pinnedMessages.map(message => (
-                            <div key={message.id} className="p-2 bg-paper-light rounded">
-                                <p className="text-sm text-ink">{message.body}</p>
-                                <p className="text-xs text-ink-faint mt-1">
-                                    {format(new Date(message.created_at || new Date()), 'M/d H:mm', { locale: ja })}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                </Card>
-            )}
-
-            {/* Messages */}
-            <Card padding="none" className="h-[50vh] flex flex-col overflow-hidden">
-                {/* Messages area */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                    {messages.length === 0 ? (
-                        <div className="flex items-center justify-center h-full">
-                            <div className="text-center">
-                                <MessageSquare size={40} className="mx-auto mb-3 text-ink-faint" />
-                                <p className="text-ink-light text-sm">メッセージはまだありません</p>
-                            </div>
-                        </div>
-                    ) : (
-                        messages.map(message => (
-                            <motion.div
-                                key={message.id}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className={`flex ${message.sender_type === 'parent' ? 'justify-end' : 'justify-start'}`}
-                            >
-                                <div
-                                    className={`max-w-[85%] p-3 rounded-lg ${message.sender_type === 'parent'
-                                        ? 'bg-ink text-paper-light rounded-br-sm'
-                                        : 'bg-paper-dark text-ink rounded-bl-sm'
-                                        }`}
-                                >
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <MessageTypeBadge type={(message.message_type || '連絡事項') as MessageType} />
-                                        {message.sender_type === 'teacher' && (
-                                            <span className="text-xs text-ink-faint">
-                                                先生
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="text-sm whitespace-pre-wrap">{message.body}</p>
-                                    <p className={`text-xs mt-2 ${message.sender_type === 'parent' ? 'text-paper-light/60' : 'text-ink-faint'
-                                        }`}>
-                                        {format(new Date(message.created_at || new Date()), 'M/d H:mm', { locale: ja })}
-                                    </p>
-                                </div>
-                            </motion.div>
-                        ))
-                    )}
-                    <div ref={messagesEndRef} />
-                </div>
-
-                {/* Input */}
-                <div className="p-4 border-t border-paper-dark">
-                    <div className="flex gap-2 mb-2">
-                        <Select
-                            value={messageType}
-                            onChange={(e) => setMessageType(e.target.value as MessageType)}
-                            options={messageTypeOptions}
-                            className="w-36"
-                        />
-                    </div>
-                    <div className="flex gap-2">
-                        <Textarea
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                            placeholder="先生へのメッセージを入力..."
-                            className="flex-1 min-h-[60px] max-h-[120px]"
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault()
-                                    handleSend()
-                                }
-                            }}
-                        />
-                        <Button
-                            variant="primary"
-                            onClick={handleSend}
-                            isLoading={sending}
-                            disabled={!newMessage.trim()}
-                            className="self-end"
-                        >
-                            <Send size={18} />
-                        </Button>
-                    </div>
+            {/* Input Area (Top) */}
+            <Card padding="sm" className="bg-paper-light">
+                <div className="flex items-start gap-2">
+                    <Select
+                        value={messageType}
+                        onChange={(e) => setMessageType(e.target.value as MessageType)}
+                        options={messageTypeOptions}
+                        className="w-32 text-xs"
+                    />
+                    <Textarea
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="先生へのメッセージを入力..."
+                        className="flex-1 min-h-[40px] max-h-[80px] text-sm py-2"
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault()
+                                handleSend()
+                            }
+                        }}
+                    />
+                    <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={handleSend}
+                        isLoading={sending}
+                        disabled={!newMessage.trim()}
+                    >
+                        <Send size={14} />
+                    </Button>
                 </div>
             </Card>
 
-            {/* Tips */}
-            <p className="text-xs text-ink-faint text-center">
-                Shift + Enterで改行、Enterで送信
-            </p>
+            {/* Messages List (Table Layout) */}
+            <Card padding="none" className="overflow-hidden">
+                <div className="max-h-[70vh] overflow-y-auto">
+                    {messages.length === 0 ? (
+                        <div className="p-8 text-center text-ink-faint text-sm">
+                            メッセージがありません
+                        </div>
+                    ) : (
+                        <table className="w-full text-sm">
+                            <thead className="bg-paper-dark/50 sticky top-0">
+                                <tr className="text-left text-xs text-ink-faint">
+                                    <th className="p-2 w-24">日時</th>
+                                    <th className="p-2 w-20">送信者</th>
+                                    <th className="p-2 w-24">種別</th>
+                                    <th className="p-2">内容</th>
+                                    <th className="p-2 w-10"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {messages.map((message) => (
+                                    <motion.tr
+                                        key={message.id}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className={`
+                                            border-b border-paper-dark/50 
+                                            hover:bg-paper-dark/30 transition-colors
+                                            ${message.is_pinned ? 'bg-ochre-subtle/30' : ''}
+                                            ${message.sender_type === 'teacher' && !message.is_pinned ? 'bg-sage-subtle/10' : ''}
+                                        `}
+                                    >
+                                        <td className="p-2 text-xs text-ink-faint whitespace-nowrap align-top">
+                                            {format(new Date(message.created_at || new Date()), 'M/d H:mm', { locale: ja })}
+                                        </td>
+                                        <td className="p-2 align-top">
+                                            <span className={`text-xs px-1.5 py-0.5 rounded inline-block ${message.sender_type === 'teacher'
+                                                    ? 'bg-sage text-paper-light'
+                                                    : 'bg-ink-faint/20 text-ink'
+                                                }`}>
+                                                {message.sender_type === 'teacher' ? '先生' : '自分'}
+                                            </span>
+                                        </td>
+                                        <td className="p-2 align-top">
+                                            <MessageTypeBadge type={(message.message_type || '連絡事項') as MessageType} />
+                                        </td>
+                                        <td className="p-2 text-ink align-top">
+                                            <p className="whitespace-pre-wrap leading-relaxed">{message.body}</p>
+                                        </td>
+                                        <td className="p-2 align-top text-center">
+                                            {message.is_pinned && (
+                                                <Pin size={14} className="text-ochre inline-block" />
+                                            )}
+                                        </td>
+                                    </motion.tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+            </Card>
         </div>
     )
 }
