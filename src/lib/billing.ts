@@ -3,6 +3,10 @@
 
 import { format, startOfMonth, endOfMonth, addMonths, getDate } from 'date-fns'
 
+// Billing configuration
+export const BILLING_CONFIRMATION_DAY = 20  // 請求締め切り日（前月20日に確定）
+export const PAYMENT_DUE_DAY = 25            // 振り込み期限（当月25日まで）
+
 export interface Lesson {
     id: string
     student_id: string
@@ -68,7 +72,6 @@ export function getBillingMonthRange(targetMonth: Date): { start: string; end: s
 export function isBillingConfirmed(targetMonth: Date, currentDate: Date = new Date()): boolean {
     // Confirmation happens on the 20th of the month before the target month
     const confirmationMonth = addMonths(targetMonth, -1)
-    const confirmationDay = 20
 
     // If we're past the confirmation date, billing is confirmed
     const currentMonthStart = startOfMonth(currentDate)
@@ -80,7 +83,7 @@ export function isBillingConfirmed(targetMonth: Date, currentDate: Date = new Da
 
     if (
         currentMonthStart.getTime() === confirmationMonthStart.getTime() &&
-        getDate(currentDate) >= confirmationDay
+        getDate(currentDate) >= BILLING_CONFIRMATION_DAY
     ) {
         return true
     }
@@ -95,7 +98,16 @@ export function isBillingConfirmed(targetMonth: Date, currentDate: Date = new Da
  */
 export function getConfirmationDate(targetMonth: Date): Date {
     const confirmationMonth = addMonths(targetMonth, -1)
-    return new Date(confirmationMonth.getFullYear(), confirmationMonth.getMonth(), 20)
+    return new Date(confirmationMonth.getFullYear(), confirmationMonth.getMonth(), BILLING_CONFIRMATION_DAY)
+}
+
+/**
+ * Get the payment due date for a billing month
+ * @param targetMonth - The billing month
+ * @returns The date when payment is due (25th of the target month)
+ */
+export function getPaymentDueDate(targetMonth: Date): Date {
+    return new Date(targetMonth.getFullYear(), targetMonth.getMonth(), PAYMENT_DUE_DAY)
 }
 
 // ... (existing code)

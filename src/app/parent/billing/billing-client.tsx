@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/pricing'
+import { getPaymentDueDate, PAYMENT_DUE_DAY } from '@/lib/billing'
 import type { BillingInfo } from '@/lib/billing'
 import type { MonthlyPayment, PaymentStatus } from '@/types/database'
 import { getPaymentStatus } from '@/types/database'
@@ -21,6 +22,7 @@ import {
     Loader2,
     ChevronLeft,
     ChevronRight,
+    HelpCircle,
 } from 'lucide-react'
 
 interface BillingClientProps {
@@ -279,6 +281,22 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
                             以降に金額が確定します
                         </p>
                     )}
+
+                    {/* Payment Due Date */}
+                    {billingInfo.isConfirmed && status === 'unpaid' && (
+                        <p className="mt-4 text-sm text-accent">
+                            振り込み期限: {format(getPaymentDueDate(billingInfo.targetMonth), 'M月d日', { locale: ja })}
+                        </p>
+                    )}
+
+                    {/* Info Link */}
+                    <Link
+                        href="/parent/billing/info"
+                        className="mt-4 inline-flex items-center gap-1 text-xs text-ink-faint hover:text-ochre transition-colors"
+                    >
+                        <HelpCircle size={14} />
+                        お支払いについて
+                    </Link>
                 </div>
             </Card>
 
