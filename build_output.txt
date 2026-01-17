@@ -1,0 +1,290 @@
+﻿
+> tutoring-app@0.1.0 build
+> next build
+
+node.exe :  笞 Warnin
+g: Next.js inferred y
+our workspace root, b
+ut it may not be corr
+ect.
+発生場所 C:\Program Files
+\nodejs\npm.ps1:29 文字
+:3
++   & $NODE_EXE $NPM_
+CLI_JS $args
++   ~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: ( 笞 War   
+ ning: Ne...not b    
+e correct.:Strin    g
+) [], RemoteExc    ep
+tion
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+ We detected multiple
+ lockfiles and select
+ed the directory of C
+:\Users\ryoda\package
+-lock.json as the roo
+t directory.
+ To silence this warn
+ing, set `turbopack.r
+oot` in your Next.js 
+config, or consider r
+emoving one of the lo
+ckfiles if it's not n
+eeded.
+   See https://nextjs
+.org/docs/app/api-ref
+erence/config/next-co
+nfig-js/turbopack#roo
+t-directory for more 
+information.
+ Detected additional 
+lockfiles: 
+   * C:\Users\ryoda\O
+neDrive\繝・せ繧ｯ繝医ャ繝予繧｢繝
+励Μ陬ｽ菴彌tutoring-app\pa
+ckage-lock.json
+
+   笆ｲ Next.js 16.0.7 (Turbopack)
+   - Environments: .env
+
+ 笞 The "middleware" 
+file convention is de
+precated. Please use 
+"proxy" instead. Lear
+n more: https://nextj
+s.org/docs/messages/m
+iddleware-to-proxy
+   Creating an optimized production build ...
+Found 1 warning while
+ optimizing generated
+ CSS:
+
+[2m笏・  }[22m
+[2m笏・}[22m
+[2m笏・[22m @import ur
+l('https://fonts.goog
+leapis.com/css2?famil
+y=Shippori+Mincho:wgh
+t@400;500;600;700&fam
+ily=Zen+Kaku+Gothic+N
+ew:wght@300;400;500;7
+00&display=swap');
+[2m笏・[22m        [3
+3m[2m^--[22m @impor
+t rules must precede 
+all rules aside from 
+@charset and @layer s
+tatements[39m
+[2m笏・[22m
+[2m笏・:root {[22m
+[2m笏・  --color-paper
+: #F5F1E8;[22m
+
+
+thread 'tokio-runtime
+-worker' (32368) pani
+cked at turbopack\cra
+tes\turbopack-core\sr
+c\ident.rs:352:34:
+byte index 29 is not 
+a char boundary; it i
+s inside '繧｢' (bytes 
+28..31) of `OneDrive_
+繝・せ繧ｯ繝医ャ繝誉繧｢繝励Μ陬ｽ菴彑tu
+toring-app_src_app_pa
+rent_schedule_schedul
+e-client_tsx_786cbbb1
+`
+note: run with `RUST_
+BACKTRACE=1` environm
+ent variable to displ
+ay a backtrace
+
+-----
+[1m[31mFATAL[39m[
+0m: An unexpected Tur
+bopack error occurred
+. A panic log has bee
+n written to C:\Users
+\ryoda\AppData\Local\
+Temp\next-panic-4a24d
+1607eeddefde1606f9df2
+1187ef.log.
+
+To help make Turbopac
+k better, report this
+ error by ]8;;https:
+//github.com/vercel/n
+ext.js/discussions/ne
+w?category=turbopack-
+error-report&title=Tu
+rbopack%20Error%3A%20
+byte%20index%2029%20i
+s%20not%20a%20char%20
+boundary%3B%20it%20is
+%20inside%20%27%E3%82
+%A2%27%20%28bytes%202
+8..31%29%20of%20%60On
+eDrive_%E3%83%87%E3%8
+2%B9%E3%82%AF%E3%83%8
+8%E3%83%83%E3%83%97_%
+E3%82%A2%E3%83%97%E3%
+83%AA%E8%A3%BD%E4%BD%
+9C_tutoring-app_src_a
+pp_parent_schedule_sc
+hedule-client_tsx_786
+cbbb1%60&body=Turbopa
+ck%20version%3A%20%60
+b1a04a84%60%0ANext.js
+%20version%3A%20%600.
+0.0%60%0A%0AError%20m
+essage%3A%0A%60%60%60
+%0Abyte%20index%2029%
+20is%20not%20a%20char
+%20boundary%3B%20it%2
+0is%20inside%20%27%E3
+%82%A2%27%20%28bytes%
+2028..31%29%20of%20%6
+0OneDrive_%E3%83%87%E
+3%82%B9%E3%82%AF%E3%8
+3%88%E3%83%83%E3%83%9
+7_%E3%82%A2%E3%83%97%
+E3%83%AA%E8%A3%BD%E4%
+BD%9C_tutoring-app_sr
+c_app_parent_schedule
+_schedule-client_tsx_
+786cbbb1%60%0A%0ADebu
+g%20info%3A%0A-%20Exe
+cution%20of%20get_all
+_written_entrypoints_
+with_issues_operation
+%20failed%0A-%20Execu
+tion%20of%20Entrypoin
+tsOperation%3A%3Anew%
+20failed%0A-%20Execut
+ion%20of%20all_entryp
+oints_write_to_disk_o
+peration%20failed%0A-
+%20Execution%20of%20P
+roject%3A%3Aemit_all_
+output_assets%20faile
+d%0A-%20Execution%20o
+f%20%2Aemit_assets%20
+failed%0A-%20Executio
+n%20of%20all_assets_f
+rom_entries%20failed%
+0A-%20Execution%20of%
+20%3CClientReferenceM
+anifest%20as%20Output
+Asset%3E%3A%3Areferen
+ces%20failed%0A-%20Ex
+ecution%20of%20build_
+manifest%20failed%0A-
+%20Execution%20of%20%
+3CNodeJsChunkingConte
+xt%20as%20ChunkingCon
+text%3E%3A%3Achunk_pa
+th%20failed%0A-%20Exe
+cution%20of%20AssetId
+ent%3A%3Aoutput_name%
+20failed%0A-%20byte%2
+0index%2029%20is%20no
+t%20a%20char%20bounda
+ry%3B%20it%20is%20ins
+ide%20%27%E3%82%A2%27
+%20%28bytes%2028..31%
+29%20of%20%60OneDrive
+_%E3%83%87%E3%82%B9%E
+3%82%AF%E3%83%88%E3%8
+3%83%E3%83%97_%E3%82%
+A2%E3%83%97%E3%83%AA%
+E8%A3%BD%E4%BD%9C_tut
+oring-app_src_app_par
+ent_schedule_schedule
+-client_tsx_786cbbb1%
+60%0A%60%60%60&labels
+=Turbopack,Turbopack%
+20Panic%20Backtrace\
+clicking here.]8;;\
+-----
+
+
+> Build error occurre
+d
+Error [TurbopackInter
+nalError]: byte index
+ 29 is not a char bou
+ndary; it is inside '
+繧｢' (bytes 28..31) of
+ `OneDrive_繝・せ繧ｯ繝医ャ繝誉
+繧｢繝励Μ陬ｽ菴彑tutoring-app
+_src_app_parent_sched
+ule_schedule-client_t
+sx_786cbbb1`
+
+Debug info:
+- Execution of get_al
+l_written_entrypoints
+_with_issues_operatio
+n failed
+- Execution of Entryp
+ointsOperation::new f
+ailed
+- Execution of all_en
+trypoints_write_to_di
+sk_operation failed
+- Execution of Projec
+t::emit_all_output_as
+sets failed
+- Execution of *emit_
+assets failed
+- Execution of all_as
+sets_from_entries fai
+led
+- Execution of <Clien
+tReferenceManifest as
+ OutputAsset>::refere
+nces failed
+- Execution of build_
+manifest failed
+- Execution of <NodeJ
+sChunkingContext as C
+hunkingContext>::chun
+k_path failed
+- Execution of AssetI
+dent::output_name fai
+led
+- byte index 29 is no
+t a char boundary; it
+ is inside '繧｢' (byte
+s 28..31) of `OneDriv
+e_繝・せ繧ｯ繝医ャ繝誉繧｢繝励Μ陬ｽ菴彑
+tutoring-app_src_app_
+parent_schedule_sched
+ule-client_tsx_786cbb
+b1`
+    at <unknown> (Tur
+bopackInternalError: 
+byte index 29 is not 
+a char boundary; it i
+s inside '繧｢' (bytes 
+28..31) of `OneDrive_
+繝・せ繧ｯ繝医ャ繝誉繧｢繝励Μ陬ｽ菴彑tu
+toring-app_src_app_pa
+rent_schedule_schedul
+e-client_tsx_786cbbb1
+`) {
+  type: 'TurbopackInt
+ernalError',
+  location: 'turbopac
+k\\crates\\turbopack-
+core\\src\\ident.rs:3
+52:34'
+}
