@@ -17,6 +17,7 @@ import {
     Loader2,
     Inbox,
     CreditCard,
+    AlertCircle,
 } from 'lucide-react'
 
 interface PaymentWithStudent extends MonthlyPayment {
@@ -26,12 +27,23 @@ interface PaymentWithStudent extends MonthlyPayment {
     }
 }
 
+interface UpcomingBilling {
+    studentId: string
+    studentName: string
+    yearMonth: string
+    totalAmount: number
+    lessonCount: number
+    isConfirmed: boolean
+    paymentDueDate: Date
+}
+
 interface PaymentsClientProps {
     students: Array<{ id: string; name: string }>
     payments: PaymentWithStudent[]
+    upcomingBillings: UpcomingBilling[]
 }
 
-export function PaymentsClient({ students, payments: initialPayments }: PaymentsClientProps) {
+export function PaymentsClient({ students, payments: initialPayments, upcomingBillings }: PaymentsClientProps) {
     const router = useRouter()
     const [payments, setPayments] = useState(initialPayments)
     const [loadingId, setLoadingId] = useState<string | null>(null)
@@ -86,6 +98,59 @@ export function PaymentsClient({ students, payments: initialPayments }: Payments
                 <Card padding="md" className="bg-accent-subtle border-accent">
                     <p className="text-sm text-accent">{error}</p>
                 </Card>
+            )}
+
+            {/* Upcoming Billings (Unconfirmed) */}
+            {upcomingBillings.length > 0 && (
+                <div className="space-y-4">
+                    <h2 className="text-lg font-display text-ink flex items-center gap-2">
+                        <AlertCircle size={20} className="text-ink-light" />
+                        翌月の請求予定（{upcomingBillings.length}件）
+                    </h2>
+
+                    <div className="space-y-3">
+                        {upcomingBillings.map((billing) => (
+                            <Card
+                                key={billing.studentId}
+                                padding="md"
+                                className={`animate-fade-slide-up ${billing.isConfirmed
+                                    ? 'bg-paper border-paper-dark'
+                                    : 'bg-paper-light border-paper-dark border-dashed'
+                                    }`}
+                            >
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <div className="space-y-1">
+                                        <div className="flex items-center gap-2">
+                                            <User size={16} className="text-ink-light" />
+                                            <span className="font-medium text-ink">
+                                                {billing.studentName}
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-4 text-sm text-ink-light">
+                                            <span className="flex items-center gap-1">
+                                                <Calendar size={14} />
+                                                {formatYearMonth(billing.yearMonth)}分
+                                            </span>
+                                            <span className="font-medium text-ink">
+                                                {formatCurrency(billing.totalAmount)}
+                                            </span>
+                                            <span className="text-ink-faint">
+                                                ({billing.lessonCount}回)
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <span className={`text-xs px-2 py-1 rounded-full ${billing.isConfirmed
+                                        ? 'bg-sage-subtle text-sage-dark'
+                                        : 'bg-ochre-subtle text-ochre-dark'
+                                        }`}>
+                                        {billing.isConfirmed ? '確定' : '未確定'}
+                                    </span>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
             )}
 
             {/* Pending Payments */}
