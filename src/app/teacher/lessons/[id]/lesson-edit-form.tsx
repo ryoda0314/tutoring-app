@@ -135,7 +135,9 @@ export function LessonEditForm({
 
             // If cancelling a REGULAR lesson (not makeup), create makeup credit
             // Makeup lessons do NOT get credits when cancelled - they simply expire
-            if (isChangingToCancel && !isMakeup) {
+            // Teacher-reason cancellations do NOT get credits - they get full refund instead
+            const isCancellingAsTeacherReason = finalCancellationReason?.includes('[Teacher Reason]')
+            if (isChangingToCancel && !isMakeup && !isCancellingAsTeacherReason) {
                 const makeupMinutes = Math.round(lessonHours * 60)
                 const expiresAt = addMonths(new Date(lessonDate), 1)
 
@@ -300,9 +302,13 @@ export function LessonEditForm({
                                     <p className="text-sm text-ink-light mb-3">
                                         これは振替レッスンです。<strong className="text-accent">キャンセルすると振替権利は失効し、返金もありません。</strong>
                                     </p>
+                                ) : isTeacherReason ? (
+                                    <p className="text-sm text-ink-light mb-3">
+                                        <strong className="text-accent">先生都合のキャンセル</strong>：授業料＋交通費が翌月の請求から差し引かれます。振替は発行されません。
+                                    </p>
                                 ) : (
                                     <p className="text-sm text-ink-light mb-3">
-                                        キャンセルすると、生徒に <strong>{lessonHours}時間分</strong> の振替時間が付与されます。
+                                        <strong>生徒都合のキャンセル</strong>：生徒に <strong>{lessonHours}時間分</strong> の振替時間が付与されます。交通費のみ翌月返金されます。
                                     </p>
                                 )}
                                 <div className="flex gap-2">
