@@ -23,7 +23,6 @@ import {
     ChevronLeft,
     ChevronRight,
     CalendarDays,
-    Train,
     FileText,
 } from 'lucide-react'
 
@@ -417,21 +416,39 @@ export function PaymentsClient({
                                         {/* 翌月分（先払い） */}
                                         <div className="space-y-1">
                                             <p className="text-xs font-bold text-ink">① 翌月分（先払い）</p>
-                                            <div className="pl-2 space-y-1">
-                                                <div className="flex justify-between text-ink-light">
-                                                    <span>授業料（{billing.billingInfo.lessonCount}回）</span>
-                                                    <span>{formatCurrency(billing.billingInfo.lessonFeeTotal)}</span>
+                                            {billing.lessons.length > 0 ? (
+                                                <div className="pl-2 space-y-1">
+                                                    {billing.lessons.map((lesson) => (
+                                                        <div key={lesson.id} className="flex justify-between items-start text-xs">
+                                                            <div className="flex flex-col">
+                                                                <span className="text-ink-light">
+                                                                    {format(new Date(lesson.date), 'M/d（E）', { locale: ja })}
+                                                                    {lesson.is_makeup && (
+                                                                        <span className="ml-1 px-1 py-0.5 rounded bg-sage-subtle text-sage-dark text-[10px]">
+                                                                            振替
+                                                                        </span>
+                                                                    )}
+                                                                </span>
+                                                                <span className="text-ink-faint">
+                                                                    {lesson.start_time?.slice(0, 5)} - {lesson.end_time?.slice(0, 5)}
+                                                                    {lesson.transport_fee > 0 && (
+                                                                        <span className="ml-1">
+                                                                            （交通費 {formatCurrency(lesson.transport_fee)}）
+                                                                        </span>
+                                                                    )}
+                                                                </span>
+                                                            </div>
+                                                            <span className="text-ink">
+                                                                {formatCurrency((lesson.amount || 0) + (lesson.transport_fee || 0))}
+                                                            </span>
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                                <div className="flex justify-between text-ink-light">
-                                                    <span className="flex items-center gap-1">
-                                                        <Train size={12} />
-                                                        交通費
-                                                    </span>
-                                                    <span>{formatCurrency(billing.billingInfo.transportFeeTotal)}</span>
-                                                </div>
-                                            </div>
+                                            ) : (
+                                                <p className="pl-2 text-xs text-ink-faint">レッスンなし</p>
+                                            )}
                                             <div className="flex justify-between text-xs font-medium text-ink pl-2 pt-1 border-t border-dashed border-paper-dark">
-                                                <span>小計</span>
+                                                <span>小計（{billing.billingInfo.lessonCount}回）</span>
                                                 <span>{formatCurrency(billing.billingInfo.lessonFeeTotal + billing.billingInfo.transportFeeTotal)}</span>
                                             </div>
                                         </div>
@@ -475,40 +492,6 @@ export function PaymentsClient({
                                             {formatCurrency(billing.billingInfo.totalAmount)}
                                         </span>
                                     </div>
-
-                                    {/* Lesson details */}
-                                    {billing.lessons.length > 0 && (
-                                        <details className="mt-3">
-                                            <summary className="text-xs text-ink-faint cursor-pointer hover:text-ink-light">
-                                                レッスン詳細を表示
-                                            </summary>
-                                            <div className="mt-2 space-y-1 text-xs">
-                                                {billing.lessons.map((lesson) => (
-                                                    <div
-                                                        key={lesson.id}
-                                                        className="flex justify-between items-center py-1 border-b border-paper-dark last:border-b-0"
-                                                    >
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-ink-light">
-                                                                {format(new Date(lesson.date), 'M/d（E）', { locale: ja })}
-                                                            </span>
-                                                            <span className="text-ink-faint">
-                                                                {lesson.start_time?.slice(0, 5)} - {lesson.end_time?.slice(0, 5)}
-                                                            </span>
-                                                            {lesson.is_makeup && (
-                                                                <span className="px-1.5 py-0.5 rounded bg-sage-subtle text-sage-dark text-[10px]">
-                                                                    振替
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <span className="text-ink">
-                                                            {formatCurrency((lesson.amount || 0) + (lesson.transport_fee || 0))}
-                                                        </span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </details>
-                                    )}
                                 </div>
                             ))}
                         </div>
