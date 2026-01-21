@@ -413,31 +413,64 @@ export function PaymentsClient({
                                     </div>
 
                                     {/* Billing breakdown */}
-                                    <div className="text-sm space-y-1 mb-2">
-                                        <div className="flex justify-between text-ink-light">
-                                            <span>授業料（{billing.billingInfo.lessonCount}回）</span>
-                                            <span>{formatCurrency(billing.billingInfo.lessonFeeTotal)}</span>
+                                    <div className="text-sm space-y-2 mb-2">
+                                        {/* 翌月分（先払い） */}
+                                        <div className="space-y-1">
+                                            <p className="text-xs font-bold text-ink">① 翌月分（先払い）</p>
+                                            <div className="pl-2 space-y-1">
+                                                <div className="flex justify-between text-ink-light">
+                                                    <span>授業料（{billing.billingInfo.lessonCount}回）</span>
+                                                    <span>{formatCurrency(billing.billingInfo.lessonFeeTotal)}</span>
+                                                </div>
+                                                <div className="flex justify-between text-ink-light">
+                                                    <span className="flex items-center gap-1">
+                                                        <Train size={12} />
+                                                        交通費
+                                                    </span>
+                                                    <span>{formatCurrency(billing.billingInfo.transportFeeTotal)}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-between text-xs font-medium text-ink pl-2 pt-1 border-t border-dashed border-paper-dark">
+                                                <span>小計</span>
+                                                <span>{formatCurrency(billing.billingInfo.lessonFeeTotal + billing.billingInfo.transportFeeTotal)}</span>
+                                            </div>
                                         </div>
-                                        <div className="flex justify-between text-ink-light">
-                                            <span className="flex items-center gap-1">
-                                                <Train size={12} />
-                                                交通費
-                                            </span>
-                                            <span>{formatCurrency(billing.billingInfo.transportFeeTotal)}</span>
-                                        </div>
-                                        {billing.billingInfo.adjustments.total !== 0 && (
-                                            <div className="flex justify-between text-ink-light">
-                                                <span>前月調整</span>
-                                                <span className={billing.billingInfo.adjustments.total < 0 ? 'text-sage' : 'text-ochre'}>
-                                                    {billing.billingInfo.adjustments.total > 0 ? '+' : ''}
-                                                    {formatCurrency(billing.billingInfo.adjustments.total)}
+
+                                        {/* 前月の調整 */}
+                                        <div className="space-y-1">
+                                            <p className="text-xs font-bold text-ink">② 前月の調整（追加・返金）</p>
+                                            {billing.billingInfo.adjustments.details && billing.billingInfo.adjustments.details.length > 0 ? (
+                                                <div className="pl-2 space-y-1">
+                                                    {billing.billingInfo.adjustments.details.map((detail, index) => (
+                                                        <div key={index} className="flex justify-between items-start text-xs">
+                                                            <div className="flex flex-col">
+                                                                <span className={`font-medium ${detail.type === 'refund' ? 'text-sage' : 'text-ochre'}`}>
+                                                                    {detail.reason}
+                                                                </span>
+                                                                <span className="text-ink-faint">
+                                                                    {format(new Date(detail.date), 'M/d')}
+                                                                </span>
+                                                            </div>
+                                                            <span className={detail.type === 'refund' ? 'text-sage' : 'text-ochre'}>
+                                                                {detail.type === 'refund' ? '-' : '+'}{formatCurrency(detail.amount)}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="pl-2 text-xs text-ink-faint">調整なし</p>
+                                            )}
+                                            <div className="flex justify-between text-xs font-medium text-ink pl-2 pt-1 border-t border-dashed border-paper-dark">
+                                                <span>小計</span>
+                                                <span className={billing.billingInfo.adjustments.total < 0 ? 'text-sage' : billing.billingInfo.adjustments.total > 0 ? 'text-ochre' : 'text-ink'}>
+                                                    {billing.billingInfo.adjustments.total > 0 ? '+' : ''}{formatCurrency(billing.billingInfo.adjustments.total)}
                                                 </span>
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
 
-                                    <div className="flex justify-between items-center pt-2 border-t border-paper-dark">
-                                        <span className="font-medium text-ink">合計</span>
+                                    <div className="flex justify-between items-center pt-2 border-t-2 border-paper-dark">
+                                        <span className="text-sm font-bold text-ink">請求総額 (①+②)</span>
                                         <span className="text-lg font-display text-ink">
                                             {formatCurrency(billing.billingInfo.totalAmount)}
                                         </span>
