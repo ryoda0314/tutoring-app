@@ -17,10 +17,11 @@ interface StudentBillingInfo {
 interface InvoicePDFProps {
     billing: StudentBillingInfo
     selectedYearMonth: string
+    teacherName: string
     onClose: () => void
 }
 
-export function InvoicePDF({ billing, selectedYearMonth, onClose }: InvoicePDFProps) {
+export function InvoicePDF({ billing, selectedYearMonth, teacherName, onClose }: InvoicePDFProps) {
     const [year, month] = selectedYearMonth.split('-')
     const issueDate = new Date()
 
@@ -151,6 +152,7 @@ export function InvoicePDF({ billing, selectedYearMonth, onClose }: InvoicePDFPr
                         </p>
                     </div>
                     <div style="text-align: right; font-size: 14px; color: #666;">
+                        <p style="margin: 0 0 4px 0; font-weight: 500; color: #111;">${teacherName}</p>
                         <p style="margin: 0;">発行日: ${format(issueDate, 'yyyy年M月d日', { locale: ja })}</p>
                     </div>
                 </div>
@@ -315,7 +317,8 @@ export function InvoicePDF({ billing, selectedYearMonth, onClose }: InvoicePDFPr
                             </p>
                         </div>
                         <div style={{ textAlign: 'right', fontSize: '14px', color: '#666' }}>
-                            <p>発行日: {format(issueDate, 'yyyy年M月d日', { locale: ja })}</p>
+                            <p style={{ margin: '0 0 4px 0', fontWeight: '500', color: '#111' }}>{teacherName}</p>
+                            <p style={{ margin: 0 }}>発行日: {format(issueDate, 'yyyy年M月d日', { locale: ja })}</p>
                         </div>
                     </div>
 

@@ -62,6 +62,7 @@ interface PaymentsClientProps {
     selectedMonth: Date
     selectedYearMonth: string
     students: Array<{ id: string; name: string }>
+    teacherName: string
 }
 
 // 月選択オプションを生成（過去12ヶ月 + 今月 + 翌月）
@@ -89,6 +90,7 @@ export function PaymentsClient({
     selectedMonth,
     selectedYearMonth,
     students,
+    teacherName,
 }: PaymentsClientProps) {
     const router = useRouter()
     const [payments, setPayments] = useState(initialPayments)
@@ -727,6 +729,7 @@ export function PaymentsClient({
                 <InvoicePDF
                     billing={selectedBillingForPDF}
                     selectedYearMonth={selectedYearMonth}
+                    teacherName={teacherName}
                     onClose={() => setSelectedBillingForPDF(null)}
                 />
             )}

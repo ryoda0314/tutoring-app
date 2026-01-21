@@ -32,6 +32,15 @@ export default async function TeacherPaymentsPage({ searchParams }: TeacherPayme
 
     if (!user) redirect('/login')
 
+    // Get teacher profile
+    const { data: teacherProfile } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', user.id)
+        .single()
+
+    const teacherName = (teacherProfile as { name: string } | null)?.name || '先生'
+
     // Get all students for this teacher
     const { data: students } = await supabase
         .from('students')
@@ -176,6 +185,7 @@ export default async function TeacherPaymentsPage({ searchParams }: TeacherPayme
                 selectedMonth={selectedMonth}
                 selectedYearMonth={selectedYearMonth}
                 students={students || []}
+                teacherName={teacherName}
             />
         </div>
     )
