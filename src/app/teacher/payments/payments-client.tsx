@@ -27,7 +27,9 @@ import {
     Plus,
     X,
     Trash2,
+    FileDown,
 } from 'lucide-react'
+import { InvoicePDF } from './invoice-pdf'
 
 interface PaymentWithStudent extends MonthlyPayment {
     student: {
@@ -94,6 +96,7 @@ export function PaymentsClient({
     const [showAddChargeForm, setShowAddChargeForm] = useState(false)
     const [addingCharge, setAddingCharge] = useState(false)
     const [deletingChargeId, setDeletingChargeId] = useState<string | null>(null)
+    const [selectedBillingForPDF, setSelectedBillingForPDF] = useState<StudentBillingInfo | null>(null)
 
     // 追加請求フォームの状態
     const [chargeStudentId, setChargeStudentId] = useState('')
@@ -530,7 +533,7 @@ export function PaymentsClient({
                                                                     {detail.reason}
                                                                 </span>
                                                                 <span className="text-ink-faint">
-                                                                    {format(new Date(detail.date), 'M/d')}
+                                                                    {format(new Date(detail.date), 'M/d（E）', { locale: ja })}
                                                                 </span>
                                                             </div>
                                                             <span className={detail.type === 'refund' ? 'text-sage' : 'text-ochre'}>
@@ -561,7 +564,7 @@ export function PaymentsClient({
                                                                 <span className="text-ink-light">{item.description}</span>
                                                                 {item.chargeDate && (
                                                                     <span className="text-ink-faint">
-                                                                        {format(new Date(item.chargeDate), 'M/d')}分
+                                                                        {format(new Date(item.chargeDate), 'M/d（E）', { locale: ja })}
                                                                     </span>
                                                                 )}
                                                             </div>
@@ -597,6 +600,18 @@ export function PaymentsClient({
                                         <span className="text-lg font-display text-ink">
                                             {formatCurrency(billing.billingInfo.totalAmount)}
                                         </span>
+                                    </div>
+
+                                    {/* PDF出力ボタン */}
+                                    <div className="mt-3 pt-3 border-t border-paper-dark">
+                                        <Button
+                                            variant="secondary"
+                                            onClick={() => setSelectedBillingForPDF(billing)}
+                                            className="w-full"
+                                        >
+                                            <FileDown size={16} />
+                                            請求書を出力
+                                        </Button>
                                     </div>
                                 </div>
                             ))}
@@ -706,6 +721,15 @@ export function PaymentsClient({
                     )}
                 </Card>
             </div>
+
+            {/* PDF Modal */}
+            {selectedBillingForPDF && (
+                <InvoicePDF
+                    billing={selectedBillingForPDF}
+                    selectedYearMonth={selectedYearMonth}
+                    onClose={() => setSelectedBillingForPDF(null)}
+                />
+            )}
         </div>
     )
 }
