@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { format, addMonths } from 'date-fns'
+import { format, addMonths, startOfMonth } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -23,6 +24,7 @@ import {
     ChevronLeft,
     ChevronRight,
     HelpCircle,
+    CalendarDays,
 } from 'lucide-react'
 
 interface BillingClientProps {
@@ -42,15 +44,42 @@ interface BillingClientProps {
     yearMonth: string
 }
 
+// 月選択オプションを生成（過去12ヶ月 + 今月 + 翌月）
+function generateMonthOptions(): { value: string; label: string }[] {
+    const options: { value: string; label: string }[] = []
+    const today = new Date()
+    const nextMonth = addMonths(startOfMonth(today), 1)
+
+    // 翌月から過去12ヶ月分（計14ヶ月分）
+    for (let i = -12; i <= 1; i++) {
+        const month = addMonths(nextMonth, i)
+        options.push({
+            value: format(month, 'yyyy-MM'),
+            label: format(month, 'yyyy年M月', { locale: ja }),
+        })
+    }
+
+    return options.reverse() // 新しい月が上に来るように
+}
+
 export function BillingClient({ billingInfo, allLessons, payment, studentId, yearMonth }: BillingClientProps) {
+    const router = useRouter()
     const [currentPayment, setCurrentPayment] = useState<MonthlyPayment | null>(payment)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [showMonthPicker, setShowMonthPicker] = useState(false)
 
     const status = getPaymentStatus(currentPayment)
 
     const prevMonth = addMonths(billingInfo.targetMonth, -1)
     const nextMonth = addMonths(billingInfo.targetMonth, 1)
+
+    const monthOptions = generateMonthOptions()
+
+    const handleMonthSelect = (selectedYearMonth: string) => {
+        setShowMonthPicker(false)
+        router.push(`/parent/billing?date=${selectedYearMonth}`)
+    }
 
     const handleReportPayment = async () => {
         setLoading(true)
@@ -122,16 +151,53 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
             <Card padding="lg" className="animate-fade-slide-up">
                 <div className="text-center">
                     {/* Month Navigation */}
-                    <div className="flex items-center justify-center gap-4 mb-2">
+                    <div className="flex items-center justify-center gap-2 mb-2">
                         <Link
                             href={`/parent/billing?date=${format(prevMonth, 'yyyy-MM')}`}
                             className="p-1 rounded-full hover:bg-paper-dark text-ink-light transition-colors"
                         >
                             <ChevronLeft size={20} />
                         </Link>
-                        <p className="text-sm font-medium text-ink-light">
-                            {format(billingInfo.targetMonth, 'yyyy年M月', { locale: ja })}分 お支払い
-                        </p>
+
+                        {/* Month Selector */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowMonthPicker(!showMonthPicker)}
+                                className="flex items-center gap-2 px-3 py-1 rounded-lg hover:bg-paper-dark text-ink-light transition-colors"
+                            >
+                                <CalendarDays size={16} />
+                                <span className="text-sm font-medium">
+                                    {format(billingInfo.targetMonth, 'yyyy年M月', { locale: ja })}分
+                                </span>
+                            </button>
+
+                            {showMonthPicker && (
+                                <>
+                                    {/* Backdrop */}
+                                    <div
+                                        className="fixed inset-0 z-10"
+                                        onClick={() => setShowMonthPicker(false)}
+                                    />
+                                    {/* Dropdown */}
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-20 bg-paper border border-paper-dark rounded-lg shadow-lg max-h-64 overflow-y-auto min-w-[160px]">
+                                        {monthOptions.map((option) => (
+                                            <button
+                                                key={option.value}
+                                                onClick={() => handleMonthSelect(option.value)}
+                                                className={`w-full px-4 py-2 text-sm text-left hover:bg-paper-dark transition-colors ${
+                                                    option.value === yearMonth
+                                                        ? 'bg-ochre-subtle text-ochre-dark font-medium'
+                                                        : 'text-ink'
+                                                }`}
+                                            >
+                                                {option.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
                         <Link
                             href={`/parent/billing?date=${format(nextMonth, 'yyyy-MM')}`}
                             className="p-1 rounded-full hover:bg-paper-dark text-ink-light transition-colors"
@@ -139,6 +205,7 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
                             <ChevronRight size={20} />
                         </Link>
                     </div>
+                    <p className="text-xs text-ink-faint mb-2">お支払い</p>
 
                     {/* Status Badge */}
                     <div className="flex justify-center mb-4">

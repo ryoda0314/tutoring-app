@@ -3,12 +3,14 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { format } from 'date-fns'
+import { format, addMonths, startOfMonth } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/pricing'
 import type { MonthlyPayment } from '@/types/database'
+import type { BillingInfo, Lesson } from '@/lib/billing'
 import {
     CheckCircle2,
     Clock,
@@ -18,6 +20,11 @@ import {
     Inbox,
     CreditCard,
     AlertCircle,
+    ChevronLeft,
+    ChevronRight,
+    CalendarDays,
+    Train,
+    FileText,
 } from 'lucide-react'
 
 interface PaymentWithStudent extends MonthlyPayment {
@@ -37,15 +44,58 @@ interface UpcomingBilling {
     paymentDueDate: Date
 }
 
-interface PaymentsClientProps {
-    students: Array<{ id: string; name: string }>
-    payments: PaymentWithStudent[]
-    upcomingBillings: UpcomingBilling[]
+interface StudentBillingInfo {
+    studentId: string
+    studentName: string
+    billingInfo: BillingInfo
+    lessons: Lesson[]
 }
 
-export function PaymentsClient({ students, payments: initialPayments, upcomingBillings }: PaymentsClientProps) {
+interface PaymentsClientProps {
+    payments: PaymentWithStudent[]
+    upcomingBillings: UpcomingBilling[]
+    studentBillings: StudentBillingInfo[]
+    selectedMonth: Date
+    selectedYearMonth: string
+}
+
+// 月選択オプションを生成（過去12ヶ月 + 今月 + 翌月）
+function generateMonthOptions(): { value: string; label: string }[] {
+    const options: { value: string; label: string }[] = []
+    const today = new Date()
+    const nextMonth = addMonths(startOfMonth(today), 1)
+
+    // 翌月から過去12ヶ月分（計14ヶ月分）
+    for (let i = -12; i <= 1; i++) {
+        const month = addMonths(nextMonth, i)
+        options.push({
+            value: format(month, 'yyyy-MM'),
+            label: format(month, 'yyyy年M月', { locale: ja }),
+        })
+    }
+
+    return options.reverse() // 新しい月が上に来るように
+}
+
+export function PaymentsClient({
+    payments: initialPayments,
+    upcomingBillings,
+    studentBillings,
+    selectedMonth,
+    selectedYearMonth,
+}: PaymentsClientProps) {
     const router = useRouter()
     const [payments, setPayments] = useState(initialPayments)
+    const [showMonthPicker, setShowMonthPicker] = useState(false)
+
+    const monthOptions = generateMonthOptions()
+    const prevMonth = addMonths(selectedMonth, -1)
+    const nextMonth = addMonths(selectedMonth, 1)
+
+    const handleMonthSelect = (yearMonth: string) => {
+        setShowMonthPicker(false)
+        router.push(`/teacher/payments?date=${yearMonth}`)
+    }
     const [loadingId, setLoadingId] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
 
@@ -264,7 +314,7 @@ export function PaymentsClient({ students, payments: initialPayments, upcomingBi
             )}
 
             {/* Empty state when no payments at all */}
-            {payments.length === 0 && (
+            {payments.length === 0 && upcomingBillings.length === 0 && (
                 <Card padding="lg" className="text-center">
                     <CreditCard size={48} className="text-ink-faint mx-auto mb-4" />
                     <h3 className="text-lg font-display text-ink mb-2">振込報告はまだありません</h3>
@@ -273,6 +323,169 @@ export function PaymentsClient({ students, payments: initialPayments, upcomingBi
                     </p>
                 </Card>
             )}
+
+            {/* Monthly Billing History Section */}
+            <div className="space-y-4 pt-4 border-t border-paper-dark">
+                <h2 className="text-lg font-display text-ink flex items-center gap-2">
+                    <FileText size={20} className="text-ink-light" />
+                    請求書出力
+                </h2>
+
+                {/* Month Navigation */}
+                <Card padding="md">
+                    <div className="flex items-center justify-center gap-2 mb-4">
+                        <Link
+                            href={`/teacher/payments?date=${format(prevMonth, 'yyyy-MM')}`}
+                            className="p-1 rounded-full hover:bg-paper-dark text-ink-light transition-colors"
+                        >
+                            <ChevronLeft size={20} />
+                        </Link>
+
+                        {/* Month Selector */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowMonthPicker(!showMonthPicker)}
+                                className="flex items-center gap-2 px-3 py-1 rounded-lg hover:bg-paper-dark text-ink-light transition-colors"
+                            >
+                                <CalendarDays size={16} />
+                                <span className="text-sm font-medium">
+                                    {format(selectedMonth, 'yyyy年M月', { locale: ja })}
+                                </span>
+                            </button>
+
+                            {showMonthPicker && (
+                                <>
+                                    {/* Backdrop */}
+                                    <div
+                                        className="fixed inset-0 z-10"
+                                        onClick={() => setShowMonthPicker(false)}
+                                    />
+                                    {/* Dropdown */}
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-20 bg-paper border border-paper-dark rounded-lg shadow-lg max-h-64 overflow-y-auto min-w-[160px]">
+                                        {monthOptions.map((option) => (
+                                            <button
+                                                key={option.value}
+                                                onClick={() => handleMonthSelect(option.value)}
+                                                className={`w-full px-4 py-2 text-sm text-left hover:bg-paper-dark transition-colors ${
+                                                    option.value === selectedYearMonth
+                                                        ? 'bg-ochre-subtle text-ochre-dark font-medium'
+                                                        : 'text-ink'
+                                                }`}
+                                            >
+                                                {option.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        <Link
+                            href={`/teacher/payments?date=${format(nextMonth, 'yyyy-MM')}`}
+                            className="p-1 rounded-full hover:bg-paper-dark text-ink-light transition-colors"
+                        >
+                            <ChevronRight size={20} />
+                        </Link>
+                    </div>
+
+                    {/* Student Billing List */}
+                    {studentBillings.length > 0 ? (
+                        <div className="space-y-3">
+                            {studentBillings.map((billing) => (
+                                <div
+                                    key={billing.studentId}
+                                    className="p-3 rounded-lg border border-paper-dark bg-paper-light"
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <User size={16} className="text-ink-light" />
+                                            <span className="font-medium text-ink">
+                                                {billing.studentName}
+                                            </span>
+                                        </div>
+                                        <span className={`text-xs px-2 py-1 rounded-full ${
+                                            billing.billingInfo.isConfirmed
+                                                ? 'bg-sage-subtle text-sage-dark'
+                                                : 'bg-ochre-subtle text-ochre-dark'
+                                        }`}>
+                                            {billing.billingInfo.isConfirmed ? '確定' : '未確定'}
+                                        </span>
+                                    </div>
+
+                                    {/* Billing breakdown */}
+                                    <div className="text-sm space-y-1 mb-2">
+                                        <div className="flex justify-between text-ink-light">
+                                            <span>授業料（{billing.billingInfo.lessonCount}回）</span>
+                                            <span>{formatCurrency(billing.billingInfo.lessonFeeTotal)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-ink-light">
+                                            <span className="flex items-center gap-1">
+                                                <Train size={12} />
+                                                交通費
+                                            </span>
+                                            <span>{formatCurrency(billing.billingInfo.transportFeeTotal)}</span>
+                                        </div>
+                                        {billing.billingInfo.adjustments.total !== 0 && (
+                                            <div className="flex justify-between text-ink-light">
+                                                <span>前月調整</span>
+                                                <span className={billing.billingInfo.adjustments.total < 0 ? 'text-sage' : 'text-ochre'}>
+                                                    {billing.billingInfo.adjustments.total > 0 ? '+' : ''}
+                                                    {formatCurrency(billing.billingInfo.adjustments.total)}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex justify-between items-center pt-2 border-t border-paper-dark">
+                                        <span className="font-medium text-ink">合計</span>
+                                        <span className="text-lg font-display text-ink">
+                                            {formatCurrency(billing.billingInfo.totalAmount)}
+                                        </span>
+                                    </div>
+
+                                    {/* Lesson details */}
+                                    {billing.lessons.length > 0 && (
+                                        <details className="mt-3">
+                                            <summary className="text-xs text-ink-faint cursor-pointer hover:text-ink-light">
+                                                レッスン詳細を表示
+                                            </summary>
+                                            <div className="mt-2 space-y-1 text-xs">
+                                                {billing.lessons.map((lesson) => (
+                                                    <div
+                                                        key={lesson.id}
+                                                        className="flex justify-between items-center py-1 border-b border-paper-dark last:border-b-0"
+                                                    >
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-ink-light">
+                                                                {format(new Date(lesson.date), 'M/d（E）', { locale: ja })}
+                                                            </span>
+                                                            <span className="text-ink-faint">
+                                                                {lesson.start_time?.slice(0, 5)} - {lesson.end_time?.slice(0, 5)}
+                                                            </span>
+                                                            {lesson.is_makeup && (
+                                                                <span className="px-1.5 py-0.5 rounded bg-sage-subtle text-sage-dark text-[10px]">
+                                                                    振替
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <span className="text-ink">
+                                                            {formatCurrency((lesson.amount || 0) + (lesson.transport_fee || 0))}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </details>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-center text-ink-faint py-4">
+                            {format(selectedMonth, 'yyyy年M月', { locale: ja })}の請求データはありません
+                        </p>
+                    )}
+                </Card>
+            </div>
         </div>
     )
 }

@@ -2,8 +2,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { PaymentsClient } from './payments-client'
 import { format, addMonths, startOfMonth } from 'date-fns'
-import { getBillingMonthRange, calculateBillingInfo, isBillingConfirmed, getPaymentDueDate } from '@/lib/billing'
-import type { Lesson } from '@/lib/billing'
+import { getBillingMonthRange, calculateBillingInfo, getPaymentDueDate } from '@/lib/billing'
+import type { Lesson, BillingInfo } from '@/lib/billing'
 
 interface UpcomingBilling {
     studentId: string
@@ -15,7 +15,18 @@ interface UpcomingBilling {
     paymentDueDate: Date
 }
 
-export default async function TeacherPaymentsPage() {
+export interface StudentBillingInfo {
+    studentId: string
+    studentName: string
+    billingInfo: BillingInfo
+    lessons: Lesson[]
+}
+
+interface TeacherPaymentsPageProps {
+    searchParams: { date?: string }
+}
+
+export default async function TeacherPaymentsPage({ searchParams }: TeacherPaymentsPageProps) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -45,6 +56,19 @@ export default async function TeacherPaymentsPage() {
     const { start, end } = getBillingMonthRange(nextMonth)
 
     const upcomingBillings: UpcomingBilling[] = []
+
+    // Selected month for billing history view
+    let selectedMonth = nextMonth
+    if (searchParams.date) {
+        const [year, month] = searchParams.date.split('-').map(Number)
+        if (!isNaN(year) && !isNaN(month)) {
+            selectedMonth = new Date(year, month - 1, 1)
+        }
+    }
+    const selectedYearMonth = format(selectedMonth, 'yyyy-MM')
+    const { start: selectedStart, end: selectedEnd } = getBillingMonthRange(selectedMonth)
+    const prevMonth = addMonths(selectedMonth, -1)
+    const { start: prevStart, end: prevEnd } = getBillingMonthRange(prevMonth)
 
     if (students) {
         const studentsTyped = students as Array<{ id: string; name: string }>
@@ -83,13 +107,54 @@ export default async function TeacherPaymentsPage() {
         }
     }
 
+    // Fetch billing info for selected month (all students)
+    const studentBillings: StudentBillingInfo[] = []
+
+    if (students) {
+        const studentsTyped = students as Array<{ id: string; name: string }>
+        for (const student of studentsTyped) {
+            // Fetch lessons for selected month
+            const { data: selectedLessons } = await supabase
+                .from('lessons')
+                .select('*')
+                .eq('student_id', student.id)
+                .gte('date', selectedStart)
+                .lte('date', selectedEnd)
+                .order('date', { ascending: true })
+
+            // Fetch lessons for previous month (for adjustments)
+            const { data: prevLessons } = await supabase
+                .from('lessons')
+                .select('*')
+                .eq('student_id', student.id)
+                .gte('date', prevStart)
+                .lte('date', prevEnd)
+
+            const lessons = (selectedLessons || []) as Lesson[]
+            const prevLessonsList = (prevLessons || []) as Lesson[]
+
+            if (lessons.length > 0 || prevLessonsList.some(l => l.status === 'cancelled')) {
+                const billingInfo = calculateBillingInfo(lessons, selectedMonth, today, prevLessonsList)
+
+                studentBillings.push({
+                    studentId: student.id,
+                    studentName: student.name,
+                    billingInfo,
+                    lessons,
+                })
+            }
+        }
+    }
+
     return (
         <div className="space-y-6">
             <h1 className="text-2xl font-display text-ink">振込管理</h1>
             <PaymentsClient
-                students={students || []}
                 payments={payments || []}
                 upcomingBillings={upcomingBillings}
+                studentBillings={studentBillings}
+                selectedMonth={selectedMonth}
+                selectedYearMonth={selectedYearMonth}
             />
         </div>
     )
