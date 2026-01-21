@@ -25,7 +25,9 @@ import {
     ChevronRight,
     HelpCircle,
     CalendarDays,
+    FileDown,
 } from 'lucide-react'
+import { ParentInvoicePDF } from './invoice-pdf'
 
 interface BillingClientProps {
     billingInfo: BillingInfo
@@ -42,6 +44,8 @@ interface BillingClientProps {
     payment: MonthlyPayment | null
     studentId: string
     yearMonth: string
+    teacherName: string
+    studentName: string
 }
 
 // 月選択オプションを生成（過去12ヶ月 + 今月 + 翌月）
@@ -62,12 +66,13 @@ function generateMonthOptions(): { value: string; label: string }[] {
     return options.reverse() // 新しい月が上に来るように
 }
 
-export function BillingClient({ billingInfo, allLessons, payment, studentId, yearMonth }: BillingClientProps) {
+export function BillingClient({ billingInfo, allLessons, payment, studentId, yearMonth, teacherName, studentName }: BillingClientProps) {
     const router = useRouter()
     const [currentPayment, setCurrentPayment] = useState<MonthlyPayment | null>(payment)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [showMonthPicker, setShowMonthPicker] = useState(false)
+    const [showInvoice, setShowInvoice] = useState(false)
 
     const status = getPaymentStatus(currentPayment)
 
@@ -356,6 +361,17 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
                         </p>
                     )}
 
+                    {/* PDF Export Button */}
+                    {billingInfo.isConfirmed && (
+                        <button
+                            onClick={() => setShowInvoice(true)}
+                            className="mt-4 inline-flex items-center gap-1 text-xs text-ink-faint hover:text-ochre transition-colors"
+                        >
+                            <FileDown size={14} />
+                            請求書を出力
+                        </button>
+                    )}
+
                     {/* Info Link */}
                     <Link
                         href="/parent/billing/info"
@@ -430,6 +446,18 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
                     )}
                 </CardContent>
             </Card>
+
+            {/* Invoice PDF Modal */}
+            {showInvoice && (
+                <ParentInvoicePDF
+                    billingInfo={billingInfo}
+                    lessons={allLessons}
+                    yearMonth={yearMonth}
+                    teacherName={teacherName}
+                    studentName={studentName}
+                    onClose={() => setShowInvoice(false)}
+                />
+            )}
         </div>
     )
 }

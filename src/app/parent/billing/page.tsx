@@ -8,6 +8,7 @@ import {
     getBillingMonthRange,
     calculateBillingInfo,
     type Lesson,
+    type OtherChargeItem,
 } from '@/lib/billing'
 import type { MonthlyPayment } from '@/types/database'
 import { BillingClient } from './billing-client'
@@ -43,6 +44,28 @@ export default async function ParentBillingPage({ searchParams }: ParentBillingP
             </div>
         )
     }
+
+    // Get student info including teacher_id
+    const { data: studentData } = await supabase
+        .from('students')
+        .select('name, teacher_id')
+        .eq('id', profile.student_id)
+        .single()
+
+    const student = studentData as { name: string; teacher_id: string } | null
+
+    // Get teacher name
+    let teacherName = '先生'
+    if (student?.teacher_id) {
+        const { data: teacherProfile } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('id', student.teacher_id)
+            .single()
+        teacherName = (teacherProfile as { name: string } | null)?.name || '先生'
+    }
+
+    const studentName = student?.name || '生徒'
 
     const today = new Date()
 
@@ -84,9 +107,24 @@ export default async function ParentBillingPage({ searchParams }: ParentBillingP
     const lessons = (lessonsData || []) as Lesson[]
     const prevLessons = (prevLessonsData || []) as Lesson[]
 
+    // Fetch other charges for this month
+    const { data: otherChargesData } = await supabase
+        .from('billing_other_charges')
+        .select('*')
+        .eq('student_id', profile.student_id)
+        .eq('year_month', yearMonth)
+
+    const otherCharges: OtherChargeItem[] = (otherChargesData || [])
+        .map((c: { id: string; description: string; amount: number; charge_date: string }) => ({
+            id: c.id,
+            description: c.description,
+            amount: c.amount,
+            chargeDate: c.charge_date,
+        }))
+
     // Calculate billing info
     // For manual date navigation, we still use 'today' as the reference for confirmation status
-    const billingInfo = calculateBillingInfo(lessons, targetMonth, today, prevLessons)
+    const billingInfo = calculateBillingInfo(lessons, targetMonth, today, prevLessons, otherCharges)
 
     // Get all lessons for next month (including makeup) for display
     const allLessons = lessons
@@ -111,6 +149,8 @@ export default async function ParentBillingPage({ searchParams }: ParentBillingP
                 payment={payment}
                 studentId={profile.student_id}
                 yearMonth={yearMonth}
+                teacherName={teacherName}
+                studentName={studentName}
             />
 
             {/* Quick Link */}
