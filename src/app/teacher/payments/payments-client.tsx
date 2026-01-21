@@ -484,10 +484,31 @@ export function PaymentsClient({
                                                 </span>
                                             </div>
                                         </div>
+
+                                        {/* その他（違約金など） */}
+                                        {billing.billingInfo.otherCharges && billing.billingInfo.otherCharges.items.length > 0 && (
+                                            <div className="space-y-1">
+                                                <p className="text-xs font-bold text-ink">③ その他</p>
+                                                <div className="pl-2 space-y-1">
+                                                    {billing.billingInfo.otherCharges.items.map((item) => (
+                                                        <div key={item.id} className="flex justify-between items-start text-xs">
+                                                            <span className="text-ink-light">{item.description}</span>
+                                                            <span className="text-ink">{formatCurrency(item.amount)}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="flex justify-between text-xs font-medium text-ink pl-2 pt-1 border-t border-dashed border-paper-dark">
+                                                    <span>小計</span>
+                                                    <span>{formatCurrency(billing.billingInfo.otherCharges.total)}</span>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="flex justify-between items-center pt-2 border-t-2 border-paper-dark">
-                                        <span className="text-sm font-bold text-ink">請求総額 (①+②)</span>
+                                        <span className="text-sm font-bold text-ink">
+                                            請求総額 (①+②{billing.billingInfo.otherCharges && billing.billingInfo.otherCharges.items.length > 0 ? '+③' : ''})
+                                        </span>
                                         <span className="text-lg font-display text-ink">
                                             {formatCurrency(billing.billingInfo.totalAmount)}
                                         </span>

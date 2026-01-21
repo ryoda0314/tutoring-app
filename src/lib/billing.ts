@@ -39,12 +39,22 @@ export interface BillingInfo {
         total: number
         details: AdjustmentDetail[]
     }
+    otherCharges: {
+        items: OtherChargeItem[]
+        total: number
+    }
 }
 
 export interface AdjustmentDetail {
     date: string
     type: 'added' | 'refund'
     reason: string
+    amount: number
+}
+
+export interface OtherChargeItem {
+    id: string
+    description: string
     amount: number
 }
 
@@ -122,7 +132,8 @@ export function calculateBillingInfo(
     lessons: Lesson[],
     targetMonth: Date,
     currentDate: Date = new Date(),
-    prevMonthLessons: Lesson[] = []
+    prevMonthLessons: Lesson[] = [],
+    otherCharges: OtherChargeItem[] = []
 ): BillingInfo {
     const confirmationDate = getConfirmationDate(targetMonth)
 
@@ -207,9 +218,12 @@ export function calculateBillingInfo(
 
     const adjustmentsTotal = addedLessonsFee - cancellationRefund
 
+    // Calculate other charges total
+    const otherChargesTotal = otherCharges.reduce((sum, item) => sum + item.amount, 0)
+
     return {
         targetMonth,
-        totalAmount: lessonFeeTotal + transportFeeTotal + adjustmentsTotal,
+        totalAmount: lessonFeeTotal + transportFeeTotal + adjustmentsTotal + otherChargesTotal,
         lessonFeeTotal,
         transportFeeTotal,
         lessonCount: billableLessons.length,
@@ -221,6 +235,10 @@ export function calculateBillingInfo(
             cancellationRefund,
             total: adjustmentsTotal,
             details: adjustmentDetails.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        },
+        otherCharges: {
+            items: otherCharges,
+            total: otherChargesTotal
         }
     }
 }
