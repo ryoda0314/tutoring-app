@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { PaymentsClient } from './payments-client'
 import { format, addMonths, startOfMonth } from 'date-fns'
 import { getBillingMonthRange, calculateBillingInfo, getPaymentDueDate } from '@/lib/billing'
-import type { Lesson, BillingInfo } from '@/lib/billing'
+import type { Lesson, BillingInfo, OtherChargeItem } from '@/lib/billing'
 
 interface UpcomingBilling {
     studentId: string
@@ -110,6 +110,12 @@ export default async function TeacherPaymentsPage({ searchParams }: TeacherPayme
     // Fetch billing info for selected month (all students)
     const studentBillings: StudentBillingInfo[] = []
 
+    // Fetch all other charges for the selected month
+    const { data: allOtherCharges } = await supabase
+        .from('billing_other_charges')
+        .select('*')
+        .eq('year_month', selectedYearMonth)
+
     if (students) {
         const studentsTyped = students as Array<{ id: string; name: string }>
         for (const student of studentsTyped) {
@@ -133,8 +139,22 @@ export default async function TeacherPaymentsPage({ searchParams }: TeacherPayme
             const lessons = (selectedLessons || []) as Lesson[]
             const prevLessonsList = (prevLessons || []) as Lesson[]
 
-            if (lessons.length > 0 || prevLessonsList.some(l => l.status === 'cancelled')) {
-                const billingInfo = calculateBillingInfo(lessons, selectedMonth, today, prevLessonsList)
+            // Get other charges for this student
+            const studentOtherCharges: OtherChargeItem[] = (allOtherCharges || [])
+                .filter((c: { student_id: string }) => c.student_id === student.id)
+                .map((c: { id: string; description: string; amount: number; charge_date: string }) => ({
+                    id: c.id,
+                    description: c.description,
+                    amount: c.amount,
+                    chargeDate: c.charge_date,
+                }))
+
+            const hasData = lessons.length > 0 ||
+                prevLessonsList.some(l => l.status === 'cancelled') ||
+                studentOtherCharges.length > 0
+
+            if (hasData) {
+                const billingInfo = calculateBillingInfo(lessons, selectedMonth, today, prevLessonsList, studentOtherCharges)
 
                 studentBillings.push({
                     studentId: student.id,
@@ -155,6 +175,7 @@ export default async function TeacherPaymentsPage({ searchParams }: TeacherPayme
                 studentBillings={studentBillings}
                 selectedMonth={selectedMonth}
                 selectedYearMonth={selectedYearMonth}
+                students={students || []}
             />
         </div>
     )

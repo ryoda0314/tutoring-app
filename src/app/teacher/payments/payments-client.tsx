@@ -24,6 +24,9 @@ import {
     ChevronRight,
     CalendarDays,
     FileText,
+    Plus,
+    X,
+    Trash2,
 } from 'lucide-react'
 
 interface PaymentWithStudent extends MonthlyPayment {
@@ -56,6 +59,7 @@ interface PaymentsClientProps {
     studentBillings: StudentBillingInfo[]
     selectedMonth: Date
     selectedYearMonth: string
+    students: Array<{ id: string; name: string }>
 }
 
 // 月選択オプションを生成（過去12ヶ月 + 今月 + 翌月）
@@ -82,10 +86,20 @@ export function PaymentsClient({
     studentBillings,
     selectedMonth,
     selectedYearMonth,
+    students,
 }: PaymentsClientProps) {
     const router = useRouter()
     const [payments, setPayments] = useState(initialPayments)
     const [showMonthPicker, setShowMonthPicker] = useState(false)
+    const [showAddChargeForm, setShowAddChargeForm] = useState(false)
+    const [addingCharge, setAddingCharge] = useState(false)
+    const [deletingChargeId, setDeletingChargeId] = useState<string | null>(null)
+
+    // 追加請求フォームの状態
+    const [chargeStudentId, setChargeStudentId] = useState('')
+    const [chargeDate, setChargeDate] = useState(format(selectedMonth, 'yyyy-MM-dd'))
+    const [chargeDescription, setChargeDescription] = useState('')
+    const [chargeAmount, setChargeAmount] = useState('')
 
     const monthOptions = generateMonthOptions()
     const prevMonth = addMonths(selectedMonth, -1)
@@ -95,6 +109,57 @@ export function PaymentsClient({
         setShowMonthPicker(false)
         router.push(`/teacher/payments?date=${yearMonth}`)
     }
+
+    const handleAddCharge = async () => {
+        if (!chargeStudentId || !chargeDate || !chargeDescription || !chargeAmount) return
+
+        setAddingCharge(true)
+        try {
+            const supabase = createClient()
+            const { error } = await (supabase
+                .from('billing_other_charges') as any)
+                .insert({
+                    student_id: chargeStudentId,
+                    year_month: selectedYearMonth,
+                    charge_date: chargeDate,
+                    description: chargeDescription,
+                    amount: parseInt(chargeAmount, 10),
+                })
+
+            if (error) throw error
+
+            // リセットしてリロード
+            setShowAddChargeForm(false)
+            setChargeStudentId('')
+            setChargeDate(format(selectedMonth, 'yyyy-MM-dd'))
+            setChargeDescription('')
+            setChargeAmount('')
+            router.refresh()
+        } catch (err) {
+            console.error('Add charge error:', err)
+        } finally {
+            setAddingCharge(false)
+        }
+    }
+
+    const handleDeleteCharge = async (chargeId: string) => {
+        setDeletingChargeId(chargeId)
+        try {
+            const supabase = createClient()
+            const { error } = await (supabase
+                .from('billing_other_charges') as any)
+                .delete()
+                .eq('id', chargeId)
+
+            if (error) throw error
+            router.refresh()
+        } catch (err) {
+            console.error('Delete charge error:', err)
+        } finally {
+            setDeletingChargeId(null)
+        }
+    }
+
     const [loadingId, setLoadingId] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
 
@@ -491,9 +556,29 @@ export function PaymentsClient({
                                                 <p className="text-xs font-bold text-ink">③ その他</p>
                                                 <div className="pl-2 space-y-1">
                                                     {billing.billingInfo.otherCharges.items.map((item) => (
-                                                        <div key={item.id} className="flex justify-between items-start text-xs">
-                                                            <span className="text-ink-light">{item.description}</span>
-                                                            <span className="text-ink">{formatCurrency(item.amount)}</span>
+                                                        <div key={item.id} className="flex justify-between items-start text-xs group">
+                                                            <div className="flex flex-col">
+                                                                <span className="text-ink-light">{item.description}</span>
+                                                                {item.chargeDate && (
+                                                                    <span className="text-ink-faint">
+                                                                        {format(new Date(item.chargeDate), 'M/d')}分
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-ink">{formatCurrency(item.amount)}</span>
+                                                                <button
+                                                                    onClick={() => handleDeleteCharge(item.id)}
+                                                                    disabled={deletingChargeId === item.id}
+                                                                    className="opacity-0 group-hover:opacity-100 p-1 text-ink-faint hover:text-accent transition-all"
+                                                                >
+                                                                    {deletingChargeId === item.id ? (
+                                                                        <Loader2 size={12} className="animate-spin" />
+                                                                    ) : (
+                                                                        <Trash2 size={12} />
+                                                                    )}
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -520,6 +605,104 @@ export function PaymentsClient({
                         <p className="text-center text-ink-faint py-4">
                             {format(selectedMonth, 'yyyy年M月', { locale: ja })}の請求データはありません
                         </p>
+                    )}
+                </Card>
+
+                {/* その他請求を追加 */}
+                <Card padding="md">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-medium text-ink flex items-center gap-2">
+                            <Plus size={16} />
+                            その他の請求を追加
+                        </h3>
+                        {showAddChargeForm && (
+                            <button
+                                onClick={() => setShowAddChargeForm(false)}
+                                className="p-1 text-ink-faint hover:text-ink transition-colors"
+                            >
+                                <X size={16} />
+                            </button>
+                        )}
+                    </div>
+
+                    {!showAddChargeForm ? (
+                        <Button
+                            variant="secondary"
+                            onClick={() => setShowAddChargeForm(true)}
+                            className="w-full"
+                        >
+                            <Plus size={16} />
+                            違約金・その他を追加
+                        </Button>
+                    ) : (
+                        <div className="space-y-3">
+                            {/* 生徒選択 */}
+                            <div>
+                                <label className="block text-xs text-ink-light mb-1">生徒</label>
+                                <select
+                                    value={chargeStudentId}
+                                    onChange={(e) => setChargeStudentId(e.target.value)}
+                                    className="w-full px-3 py-2 text-sm border border-paper-dark rounded-lg bg-paper focus:outline-none focus:ring-2 focus:ring-ochre"
+                                >
+                                    <option value="">選択してください</option>
+                                    {students.map((student) => (
+                                        <option key={student.id} value={student.id}>
+                                            {student.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* 対象日 */}
+                            <div>
+                                <label className="block text-xs text-ink-light mb-1">対象日（いつ分の請求か）</label>
+                                <input
+                                    type="date"
+                                    value={chargeDate}
+                                    onChange={(e) => setChargeDate(e.target.value)}
+                                    className="w-full px-3 py-2 text-sm border border-paper-dark rounded-lg bg-paper focus:outline-none focus:ring-2 focus:ring-ochre"
+                                />
+                            </div>
+
+                            {/* 説明 */}
+                            <div>
+                                <label className="block text-xs text-ink-light mb-1">説明</label>
+                                <input
+                                    type="text"
+                                    value={chargeDescription}
+                                    onChange={(e) => setChargeDescription(e.target.value)}
+                                    placeholder="例：無断キャンセル違約金"
+                                    className="w-full px-3 py-2 text-sm border border-paper-dark rounded-lg bg-paper focus:outline-none focus:ring-2 focus:ring-ochre"
+                                />
+                            </div>
+
+                            {/* 金額 */}
+                            <div>
+                                <label className="block text-xs text-ink-light mb-1">金額</label>
+                                <input
+                                    type="number"
+                                    value={chargeAmount}
+                                    onChange={(e) => setChargeAmount(e.target.value)}
+                                    placeholder="例：3000"
+                                    className="w-full px-3 py-2 text-sm border border-paper-dark rounded-lg bg-paper focus:outline-none focus:ring-2 focus:ring-ochre"
+                                />
+                            </div>
+
+                            {/* 追加ボタン */}
+                            <Button
+                                variant="primary"
+                                onClick={handleAddCharge}
+                                disabled={addingCharge || !chargeStudentId || !chargeDate || !chargeDescription || !chargeAmount}
+                                className="w-full"
+                            >
+                                {addingCharge ? (
+                                    <Loader2 size={16} className="animate-spin" />
+                                ) : (
+                                    <Plus size={16} />
+                                )}
+                                追加する
+                            </Button>
+                        </div>
                     )}
                 </Card>
             </div>

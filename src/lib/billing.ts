@@ -56,6 +56,7 @@ export interface OtherChargeItem {
     id: string
     description: string
     amount: number
+    chargeDate?: string // いつ分の請求か（例：無断キャンセルした日）
 }
 
 /**
