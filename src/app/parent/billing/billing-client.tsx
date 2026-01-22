@@ -365,10 +365,10 @@ export function BillingClient({ billingInfo, allLessons, payment, studentId, yea
                     {billingInfo.isConfirmed && (
                         <button
                             onClick={() => setShowInvoice(true)}
-                            className="mt-4 inline-flex items-center gap-1 text-xs text-ink-faint hover:text-ochre transition-colors"
+                            className="mt-6 w-full max-w-xs mx-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-ink-light text-ink hover:bg-paper-dark transition-colors"
                         >
-                            <FileDown size={14} />
-                            請求書を出力
+                            <FileDown size={18} />
+                            <span className="font-medium">請求書を出力</span>
                         </button>
                     )}
 
